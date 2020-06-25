@@ -20,9 +20,9 @@ int main(void)
 
 	 // COMPAT profile contains a vertex array object by default
 	 // where as CORE profile doesn't
-	 // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	 // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	 // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//	 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+//	 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+//	 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
 	window = glfwCreateWindow(640, 480, "OpenGL", NULL, NULL);
@@ -42,9 +42,10 @@ int main(void)
 	}
 
 	float vertices[]  = {
-			-1.0f, -1.0f, 0.0f,
-			 1.0f, -1.0f, 0.0f,
-			 0.0f, 1.0f, 0.0f
+			-0.5f, -0.5f, 0.0f,
+			 0.5f, -0.5f, 0.0f,
+			 0.5f, 0.5f, 0.0f,
+			-0.5f, 0.5f, 0.0f,
 	};
 
 	unsigned int vbo;
@@ -62,10 +63,9 @@ int main(void)
 
 	std::string vs = "#version 330\n"
 			"layout(location=0) in vec3 position;\n"
-			"uniform float gScale;\n"
 			"void main(void)\n"
 			"{\n"
-			"gl_Position = vec4(gScale * position, 1.0);\n"
+			"gl_Position = vec4(position, 1.0);\n"
 			"}\n";
 
 	const char* src;
@@ -127,22 +127,34 @@ int main(void)
 	glValidateProgram(shaderProgram);
 	glUseProgram(shaderProgram);
 
-	int gScaleLocation = glGetUniformLocation(shaderProgram, "gScale");
+	// delete the shaders
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
 
-	float scale = 0.0f;
+	unsigned int indices[] = {
+			0, 1, 2,
+			2, 3, 0
+	};
+
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 
 	while(!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
-		glUniform1f(gScaleLocation, sinf(scale));
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		scale += 0.001f;
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//scale += 0.001f;
 		//glDrawArrays(GL_POINTS, 0, 1);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-
+	glDeleteProgram(shaderProgram);
 	glfwTerminate();
 	return 0;
 }
