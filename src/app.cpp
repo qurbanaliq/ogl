@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <string>
+#include <math.h>
 
 int main(void)
 {
@@ -61,42 +62,81 @@ int main(void)
 
 	std::string vs = "#version 330\n"
 			"layout(location=0) in vec3 position;\n"
+			"uniform float gScale;\n"
 			"void main(void)\n"
 			"{\n"
-			"gl_Position = vec4(0.5 * position, 1.0);\n"
+			"gl_Position = vec4(gScale * position, 1.0);\n"
 			"}\n";
 
 	const char* src;
+
 	src = vs.c_str();
 	glShaderSource(vertexShader, 1, &src, nullptr);
 	glCompileShader(vertexShader);
+
+	int success;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		int length;
+		glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &length);
+		char* info = (char*)alloca(length * sizeof(char));
+		glGetShaderInfoLog(vertexShader, sizeof(info), NULL, info);
+		std::cout << "Error: could not compile vertex shader" << std::endl;
+		return -1;
+	}
+
 
 	std::string fs = "#version 330\n"
 			"out vec4 color;\n"
 			"void main()\n"
 			"{\n"
-			"color = vec4(0.3, 0.2, 0.5, 1.0);\n"
+			"color = vec4(0.5, 0.2, 0.5, 1.0);\n"
 			"}\n";
 
 	src = fs.c_str();
 	glShaderSource(fragmentShader, 1, &src, nullptr);
 	glCompileShader(fragmentShader);
 
-	//TODO: validate shader here
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		int length;
+		glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &length);
+		char* info = (char*)alloca(length * sizeof(char));
+		glGetShaderInfoLog(fragmentShader, sizeof(info), NULL, info);
+		std::cout << "Error: Could not compile fragment shader" << std::endl;
+		return -1;
+	}
 
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
+
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		int length;
+		glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &length);
+		char* info = (char*)alloca(length * sizeof(char));
+		glGetProgramInfoLog(shaderProgram, sizeof(info), NULL, info);
+		std::cout << "could not link shader program" << std::endl;
+		return -1;
+	}
+
 	glValidateProgram(shaderProgram);
 	glUseProgram(shaderProgram);
 
-	std::cout << glGetString(GL_VERSION) << std::endl;
+	int gScaleLocation = glGetUniformLocation(shaderProgram, "gScale");
+
+	float scale = 0.0f;
 
 	while(!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
-
+		glUniform1f(gScaleLocation, sinf(scale));
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+		scale += 0.001f;
 		//glDrawArrays(GL_POINTS, 0, 1);
 
 		glfwSwapBuffers(window);
