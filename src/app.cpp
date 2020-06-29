@@ -20,9 +20,9 @@ int main(void)
 
 	 // COMPAT profile contains a vertex array object by default
 	 // where as CORE profile doesn't
-//	 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//	 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-//	 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
 	window = glfwCreateWindow(640, 480, "OpenGL", NULL, NULL);
@@ -48,14 +48,31 @@ int main(void)
 			-0.5f, 0.5f, 0.0f,
 	};
 
+	unsigned int vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
 	unsigned int vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	unsigned int indices[] = {
+				0, 1, 2,
+				2, 3, 0
+	};
+
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	unsigned int shaderProgram = glCreateProgram();
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -131,19 +148,7 @@ int main(void)
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	unsigned int indices[] = {
-			0, 1, 2,
-			2, 3, 0
-	};
-
-	unsigned int ibo;
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
+	glBindVertexArray(vao);
 	while(!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
