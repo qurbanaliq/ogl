@@ -2,7 +2,11 @@
  * app.cpp
  *
  *  Created on: Jun 24, 2020
- *      Author: 123
+ *  Author: 123
+ *
+ *	This if OpenGL exercise
+ *  OpenGL is a state machine
+ *  some functions set the state and others use that state
  */
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -18,11 +22,12 @@ int main(void)
 	if (!glfwInit())
 		return -1;
 
-	 // COMPAT profile contains a vertex array object by default
-	 // where as CORE profile doesn't
-	 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	// COMPAT profile contains a vertex array object by default
+	// where as CORE profile doesn't
+	// we create our own vertex array if we use core profile
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
 	window = glfwCreateWindow(640, 480, "OpenGL", NULL, NULL);
@@ -48,6 +53,8 @@ int main(void)
 			-0.5f, 0.5f, 0.0f,
 	};
 
+	// create and bind vertex array, it will contain all the subsequent
+	// vertex and index buffers
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -57,37 +64,40 @@ int main(void)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+	// defines the layout of the data and assign index zero to this data
+	// divides data into vertices, each of 3 floats.
+	// total 4 vertices in this case indexed 0 to 4 to use in index buffer
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
+	// based on defined layout of vertices, draw them in this order
 	unsigned int indices[] = {
 				0, 1, 2,
 				2, 3, 0
 	};
-
 	unsigned int ibo;
 	glGenBuffers(1, &ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+	// unbind everything (don't unbind buffers before vertex array)
+	// we can now bind only vertex array when we need to draw this data
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	// create shaders
 	unsigned int shaderProgram = glCreateProgram();
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-	std::string vs = "#version 330\n"
+	const char* src = "#version 330\n"
 			"layout(location=0) in vec3 position;\n"
 			"void main(void)\n"
 			"{\n"
 			"gl_Position = vec4(position, 1.0);\n"
 			"}\n";
 
-	const char* src;
-
-	src = vs.c_str();
 	glShaderSource(vertexShader, 1, &src, nullptr);
 	glCompileShader(vertexShader);
 
@@ -104,14 +114,13 @@ int main(void)
 	}
 
 
-	std::string fs = "#version 330\n"
+	src = "#version 330\n"
 			"out vec4 color;\n"
 			"void main()\n"
 			"{\n"
 			"color = vec4(0.5, 0.2, 0.5, 1.0);\n"
 			"}\n";
 
-	src = fs.c_str();
 	glShaderSource(fragmentShader, 1, &src, nullptr);
 	glCompileShader(fragmentShader);
 
@@ -148,17 +157,21 @@ int main(void)
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
+	// enable vertex array we want to draw
 	glBindVertexArray(vao);
 	while(!glfwWindowShouldClose(window))
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		// set the color in the buffer
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // state setting function
+		glClear(GL_COLOR_BUFFER_BIT); // state using function
+
+		// draw the elements in currently enabled vertex array
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		//scale += 0.001f;
-		//glDrawArrays(GL_POINTS, 0, 1);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+	glBindVertexArray(0);
 	glDeleteProgram(shaderProgram);
 	glfwTerminate();
 	return 0;
