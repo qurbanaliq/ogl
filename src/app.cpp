@@ -53,9 +53,9 @@ int main(void)
 	};
 
 	float vertices2[] = {
-			0.0f, -0.5f, 0.0f,
-			0.0f, 0.0f, 0.0f,
-			0.5f, -0.5f, 0.0f
+			0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+			0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 	};
 
 	// create and bind vertex array, it will contain all the subsequent
@@ -86,8 +86,11 @@ int main(void)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	// stride can also be zero since we have tightly packed data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+
+	// for color
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -100,9 +103,12 @@ int main(void)
 
 	const char* src = "#version 330\n"
 			"layout(location=0) in vec3 position;\n"
+			"layout(location=1) in vec3 aColor;\n"
+			"out vec3 outColor;\n"
 			"void main(void)\n"
 			"{\n"
 			"gl_Position = vec4(position, 1.0);\n"
+			"outColor = aColor;\n"
 			"}\n";
 
 	glShaderSource(vertexShader, 1, &src, nullptr);
@@ -149,9 +155,10 @@ int main(void)
 
 	src = "#version 330\n"
 			"out vec4 color;\n"
+			"in vec3 outColor;\n"
 			"void main()\n"
 			"{\n"
-			"color = vec4(1.0, 1.0, 0.0, 1.0);\n"
+			"color = vec4(outColor, 1.0);\n"
 			"}\n";
 	glShaderSource(fragmentShaderYellow, 1, &src, nullptr);
 	glCompileShader(fragmentShaderYellow);
