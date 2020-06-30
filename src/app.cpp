@@ -123,9 +123,10 @@ int main(void)
 
 	src = "#version 330\n"
 			"out vec4 color;\n"
+			"uniform vec4 ourColor;\n"
 			"void main()\n"
 			"{\n"
-			"color = vec4(1.0, 0.5, 0.2, 1.0);\n"
+			"color = ourColor;\n"
 			"}\n";
 
 	glShaderSource(fragmentShader, 1, &src, nullptr);
@@ -205,8 +206,13 @@ int main(void)
 	glDeleteShader(fragmentShader);
 	glDeleteShader(fragmentShaderYellow);
 
+	int colorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+
+
 	// enable vertex array we want to draw
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	float color = 0;
 	while(!glfwWindowShouldClose(window))
 	{
 		// set the color in the buffer
@@ -214,6 +220,8 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT); // state using function
 
 		glUseProgram(shaderProgram);
+		glUniform4f(colorLocation, 0.0, sin(color), 0.0, 1.0);
+		color += 0.001;
 		glBindVertexArray(vao[0]);
 		// draw the elements in currently enabled vertex array
 		glDrawArrays(GL_TRIANGLES, 0, 3);
