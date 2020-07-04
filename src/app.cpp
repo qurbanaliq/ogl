@@ -11,6 +11,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <stbImage/stbImage.h>
 #include <iostream>
 #include <string>
 #include <math.h>
@@ -53,12 +54,6 @@ int main(void)
 			 0.0f, -0.5f, 0.0f
 	};
 
-	float vertices2[] = {
-			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-			0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f
-	};
-
 	// create and bind vertex array, it will contain all the subsequent
 	// vertex and index buffers
 	unsigned int vao[2], vbo[2];
@@ -81,21 +76,60 @@ int main(void)
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+
+	float vertices2[] = {
+			//positions			 //colors			//tex coords
+			-0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  0.0, 0.0,
+			0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0, 0.0,
+			0.0f, 0.5f, 0.0f,    0.0f, 0.0f, 1.0f,  0.5, 1.0
+	};
+
 	// second triangle
 	glBindVertexArray(vao[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
 
 	// for color
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
 			(void*)(3 * sizeof(float)));
+
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+			(void*)(6 * sizeof(float)));
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+	// creating a texture
+
+	//load the texture
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load("rc/images/container.jpg", &width, &height, &nrChannels, 0);
+
+	// generate the texture
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	// set the wrapping options (on the currently bound texture)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set the minifying and magnifying options
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// free the buffer
+	stbi_image_free(data);
 
 
 	// create shaders
@@ -122,7 +156,8 @@ int main(void)
 
 		//glUseProgram(shaderProgramYellow);
 		shader2.use();
-		shader2.setUniform1f("offset", 0.5);
+		//shader2.setUniform1f("offset", 0.0);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindVertexArray(vao[1]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 

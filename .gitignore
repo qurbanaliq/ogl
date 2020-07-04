@@ -39,6 +39,7 @@ Debug/*
 dependencies/*
 .settings/*
 ven/*
+rc/images/*
 
 *.i
 *.ini
