@@ -81,8 +81,17 @@ int main(void)
 			//positions			 //colors			//tex coords
 			-0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  0.0, 0.0,
 			0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0, 0.0,
-			0.0f, 0.5f, 0.0f,    0.0f, 0.0f, 1.0f,  0.5, 1.0
+			0.5f, 0.5f, 0.0f,    0.0f, 0.0f, 1.0f,  1.0, 1.0,
+			-0.5f, 0.5f, 0.0f,   1.0f, 1.0f, 0.0f,  0.0, 1.0
 	};
+
+	unsigned int indices[] = {
+			0, 1, 2,
+			2, 3, 0
+	};
+
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
 
 	// second triangle
 	glBindVertexArray(vao[1]);
@@ -101,14 +110,19 @@ int main(void)
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
 			(void*)(6 * sizeof(float)));
 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 
 	// creating a texture
 
 	//load the texture
 	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load("rc/images/container.jpg", &width, &height, &nrChannels, 0);
 
 	// generate the texture
@@ -131,6 +145,32 @@ int main(void)
 	// free the buffer
 	stbi_image_free(data);
 
+	// 2nd texture
+	data = stbi_load("rc/images/awesomeface.png", &width, &height, &nrChannels, 0);
+
+	unsigned int texture2;
+	glGenTextures(1, &texture2);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	stbi_image_free(data);
+
+
+	// bind textures to texture units
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
 
 	// create shaders
 	//Shader shader("rc/shaders/v.shader", "rc/shaders/f.shader");
@@ -139,6 +179,12 @@ int main(void)
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	float color = 0;
+
+	shader2.use();
+	shader2.setUniform1i("texture1", 0);
+	shader2.setUniform1i("texture2", 1);
+	glBindVertexArray(vao[1]);
+
 	while(!glfwWindowShouldClose(window))
 	{
 		// set the color in the buffer
@@ -155,11 +201,14 @@ int main(void)
 //		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		//glUseProgram(shaderProgramYellow);
-		shader2.use();
-		//shader2.setUniform1f("offset", 0.0);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glBindVertexArray(vao[1]);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+//		shader2.use();
+//		//shader2.setUniform1f("offset", 0.0);
+//		//glBindTexture(GL_TEXTURE_2D, texture);
+//		shader2.setUniform1i("texture1", 0);
+//		shader2.setUniform1i("texture2", 1);
+//		glBindVertexArray(vao[1]);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
