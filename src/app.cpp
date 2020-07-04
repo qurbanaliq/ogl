@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include "shader.h"
 
 int main(void)
 {
@@ -53,9 +54,9 @@ int main(void)
 	};
 
 	float vertices2[] = {
-			0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-			0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f
+			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+			0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 	};
 
 	// create and bind vertex array, it will contain all the subsequent
@@ -90,133 +91,17 @@ int main(void)
 
 	// for color
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+			(void*)(3 * sizeof(float)));
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
 	// create shaders
-	unsigned int shaderProgram = glCreateProgram();
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	//Shader shader("rc/shaders/v.shader", "rc/shaders/f.shader");
+	Shader shader2("rc/shaders/v.shader", "rc/shaders/f2.shader");
 
-	const char* src = "#version 330\n"
-			"layout(location=0) in vec3 position;\n"
-			"layout(location=1) in vec3 aColor;\n"
-			"out vec3 outColor;\n"
-			"void main(void)\n"
-			"{\n"
-			"gl_Position = vec4(position, 1.0);\n"
-			"outColor = aColor;\n"
-			"}\n";
-
-	glShaderSource(vertexShader, 1, &src, nullptr);
-	glCompileShader(vertexShader);
-
-	int success;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		int length;
-		glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &length);
-		char* info = (char*)alloca(length * sizeof(char));
-		glGetShaderInfoLog(vertexShader, sizeof(info), NULL, info);
-		std::cout << "Error: could not compile vertex shader: " << info << std::endl;
-		return -1;
-	}
-
-
-	src = "#version 330\n"
-			"out vec4 color;\n"
-			"uniform vec4 ourColor;\n"
-			"void main()\n"
-			"{\n"
-			"color = ourColor;\n"
-			"}\n";
-
-	glShaderSource(fragmentShader, 1, &src, nullptr);
-	glCompileShader(fragmentShader);
-
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		int length;
-		glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &length);
-		char* info = (char*)alloca(length * sizeof(char));
-		glGetShaderInfoLog(fragmentShader, sizeof(info), NULL, info);
-		std::cout << "Error: Could not compile fragment shader: " << info << std::endl;
-		return -1;
-	}
-
-	// Yellow
-	unsigned int shaderProgramYellow = glCreateProgram();
-	unsigned int fragmentShaderYellow = glCreateShader(GL_FRAGMENT_SHADER);
-
-	src = "#version 330\n"
-			"out vec4 color;\n"
-			"in vec3 outColor;\n"
-			"void main()\n"
-			"{\n"
-			"color = vec4(outColor, 1.0);\n"
-			"}\n";
-	glShaderSource(fragmentShaderYellow, 1, &src, nullptr);
-	glCompileShader(fragmentShaderYellow);
-
-	glGetShaderiv(fragmentShaderYellow, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		int length;
-		glGetShaderiv(fragmentShaderYellow, GL_INFO_LOG_LENGTH, &length);
-		char* info = (char*)alloca(length * sizeof(char));
-		glGetShaderInfoLog(fragmentShaderYellow, sizeof(info), NULL, info);
-		std::cout << "Error: Could not compile fragment shader yellow: " << info << std::endl;
-		return -1;
-	}
-
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		int length;
-		glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &length);
-		char* info = (char*)alloca(length * sizeof(char));
-		glGetProgramInfoLog(shaderProgram, sizeof(info), NULL, info);
-		std::cout << "could not link shader program" << std::endl;
-		return -1;
-	}
-
-	glValidateProgram(shaderProgram);
-
-	glAttachShader(shaderProgramYellow, vertexShader);
-	glAttachShader(shaderProgramYellow, fragmentShaderYellow);
-	glLinkProgram(shaderProgramYellow);
-
-	glGetProgramiv(shaderProgramYellow, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		int length;
-		glGetProgramiv(shaderProgramYellow, GL_INFO_LOG_LENGTH, &length);
-		char* info = (char*)alloca(length * sizeof(char));
-		glGetProgramInfoLog(shaderProgramYellow, sizeof(info), NULL, info);
-		std::cout << "Could not link shader program yellow: " << info << std::endl;
-		return -1;
-	}
-
-	glValidateProgram(shaderProgramYellow);
-
-	// delete the shaders
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-	glDeleteShader(fragmentShaderYellow);
-
-	int colorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-
-
-	// enable vertex array we want to draw
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	float color = 0;
@@ -226,14 +111,18 @@ int main(void)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // state setting function
 		glClear(GL_COLOR_BUFFER_BIT); // state using function
 
-		glUseProgram(shaderProgram);
-		glUniform4f(colorLocation, 0.0, sin(color), 0.0, 1.0);
+		//glUseProgram(shaderProgram);
+		//glUniform4f(colorLocation, 0.0, sin(color), 0.0, 1.0);
+//		shader.use();
+//		shader.setUniform4f("ourColor", 0.0, sin(color), 0.0, 1.0);
 		color += 0.001;
-		glBindVertexArray(vao[0]);
+//		glBindVertexArray(vao[0]);
 		// draw the elements in currently enabled vertex array
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+//		glDrawArrays(GL_TRIANGLES, 0, 3);
 
-		glUseProgram(shaderProgramYellow);
+		//glUseProgram(shaderProgramYellow);
+		shader2.use();
+		shader2.setUniform1f("offset", 0.5);
 		glBindVertexArray(vao[1]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -241,8 +130,8 @@ int main(void)
 		glfwPollEvents();
 	}
 	glBindVertexArray(0);
-	glDeleteProgram(shaderProgram);
-	glDeleteProgram(shaderProgramYellow);
+//	glDeleteProgram(shaderProgram);
+//	glDeleteProgram(shaderProgramYellow);
 	glDeleteVertexArrays(2, vao);
 	glDeleteBuffers(2, vbo);
 	glfwTerminate();
