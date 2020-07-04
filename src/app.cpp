@@ -17,10 +17,10 @@
 #include <math.h>
 #include "shader.h"
 
+void processInput(GLFWwindow* window);
+
 int main(void)
 {
-	GLFWwindow* window;
-
 	if (!glfwInit())
 		return -1;
 
@@ -32,7 +32,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
-	window = glfwCreateWindow(640, 480, "OpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(640, 480, "OpenGL", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -79,10 +79,10 @@ int main(void)
 
 	float vertices2[] = {
 			//positions			 //colors			//tex coords
-			-0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  0.0, 0.0,
-			0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0, 0.0,
-			0.5f, 0.5f, 0.0f,    0.0f, 0.0f, 1.0f,  1.0, 1.0,
-			-0.5f, 0.5f, 0.0f,   1.0f, 1.0f, 0.0f,  0.0, 1.0
+			-0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+			0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
+			0.5f, 0.5f, 0.0f,    0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
+			-0.5f, 0.5f, 0.0f,   1.0f, 1.0f, 0.0f,  0.0f, 1.0f
 	};
 
 	unsigned int indices[] = {
@@ -131,11 +131,16 @@ int main(void)
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	// set the wrapping options (on the currently bound texture)
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	//float colorr[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+	//glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, colorr);
+
 	// set the minifying and magnifying options
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -178,7 +183,7 @@ int main(void)
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	float color = 0;
+	float visibility = 0.2;
 
 	shader2.use();
 	shader2.setUniform1i("texture1", 0);
@@ -187,15 +192,26 @@ int main(void)
 
 	while(!glfwWindowShouldClose(window))
 	{
+		processInput(window);
 		// set the color in the buffer
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // state setting function
 		glClear(GL_COLOR_BUFFER_BIT); // state using function
+
+		shader2.setUniform1f("visibility", visibility);
+
+		if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+			visibility += 0.001;
+		if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+			visibility -= 0.001;
+
+		if (visibility < 0) visibility = 0;
+		if (visibility > 1) visibility = 1;
 
 		//glUseProgram(shaderProgram);
 		//glUniform4f(colorLocation, 0.0, sin(color), 0.0, 1.0);
 //		shader.use();
 //		shader.setUniform4f("ourColor", 0.0, sin(color), 0.0, 1.0);
-		color += 0.001;
+
 //		glBindVertexArray(vao[0]);
 		// draw the elements in currently enabled vertex array
 //		glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -222,3 +238,8 @@ int main(void)
 	return 0;
 }
 
+void processInput(GLFWwindow *window)
+{
+	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
