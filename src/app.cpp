@@ -144,7 +144,6 @@ int main(void)
 	shader2.setUniform1i("texture2", 1);
 	glBindVertexArray(vao[1]);
 
-	float t = 0.0f;
 	while(!glfwWindowShouldClose(window))
 	{
 		processInput(window);
@@ -154,36 +153,15 @@ int main(void)
 
 		shader2.setUniform1f("visibility", visibility);
 
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::scale(trans, glm::vec3(visibility, visibility, visibility));
+		glm::mat4 transform(1.0f);
+		glm::mat4 model = glm::rotate(transform, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		glm::mat4 view = glm::translate(transform, glm::vec3(0.0f, 0.0f, -3.0f));
+		glm::mat4 projection = glm::perspective(glm::radians(45.f), 640.0f/480.0f, 0.1f, 100.0f);
 
+		transform = projection * view * model;
 
-		trans = glm::translate(trans, glm::vec3(t, 0.0f, 0.0f));
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-		shader2.setUniformMat4fv("transform", trans);
+		shader2.setUniformMat4fv("transform", transform);
 
-		if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-			visibility += 0.001;
-		if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-			visibility -= 0.001;
-
-		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-			t -= 0.001;
-		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-			t += 0.001;
-
-		if (visibility < 0) visibility = 0;
-		if (visibility > 1) visibility = 1;
-
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		shader2.use();
-
-		trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
-		trans = glm::scale(trans, glm::vec3(t, t, t));
-
-		shader2.setUniformMat4fv("transform", trans);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
