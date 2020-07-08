@@ -16,6 +16,10 @@
 #include <string>
 #include <math.h>
 #include "shader.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "texture.h"
 
 void processInput(GLFWwindow* window);
 
@@ -121,61 +125,11 @@ int main(void)
 	// creating a texture
 
 	//load the texture
-	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load("rc/images/container.jpg", &width, &height, &nrChannels, 0);
+	Texture texture1("rc/images/container.jpg"),
+			texture2("rc/images/awesomeface.png");
 
-	// generate the texture
-	unsigned int texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	// set the wrapping options (on the currently bound texture)
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	//float colorr[] = { 1.0f, 1.0f, 0.0f, 1.0f };
-	//glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, colorr);
-
-	// set the minifying and magnifying options
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// free the buffer
-	stbi_image_free(data);
-
-	// 2nd texture
-	data = stbi_load("rc/images/awesomeface.png", &width, &height, &nrChannels, 0);
-
-	unsigned int texture2;
-	glGenTextures(1, &texture2);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	stbi_image_free(data);
-
-
-	// bind textures to texture units
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture2);
+	texture1.bind(0);
+	texture2.bind(1);
 
 	// create shaders
 	//Shader shader("rc/shaders/v.shader", "rc/shaders/f.shader");
@@ -190,6 +144,7 @@ int main(void)
 	shader2.setUniform1i("texture2", 1);
 	glBindVertexArray(vao[1]);
 
+	float t = 0.0f;
 	while(!glfwWindowShouldClose(window))
 	{
 		processInput(window);
@@ -199,31 +154,36 @@ int main(void)
 
 		shader2.setUniform1f("visibility", visibility);
 
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::scale(trans, glm::vec3(visibility, visibility, visibility));
+
+
+		trans = glm::translate(trans, glm::vec3(t, 0.0f, 0.0f));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		shader2.setUniformMat4fv("transform", trans);
+
 		if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 			visibility += 0.001;
 		if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 			visibility -= 0.001;
 
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+			t -= 0.001;
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+			t += 0.001;
+
 		if (visibility < 0) visibility = 0;
 		if (visibility > 1) visibility = 1;
 
-		//glUseProgram(shaderProgram);
-		//glUniform4f(colorLocation, 0.0, sin(color), 0.0, 1.0);
-//		shader.use();
-//		shader.setUniform4f("ourColor", 0.0, sin(color), 0.0, 1.0);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-//		glBindVertexArray(vao[0]);
-		// draw the elements in currently enabled vertex array
-//		glDrawArrays(GL_TRIANGLES, 0, 3);
+		shader2.use();
 
-		//glUseProgram(shaderProgramYellow);
-//		shader2.use();
-//		//shader2.setUniform1f("offset", 0.0);
-//		//glBindTexture(GL_TEXTURE_2D, texture);
-//		shader2.setUniform1i("texture1", 0);
-//		shader2.setUniform1i("texture2", 1);
-//		glBindVertexArray(vao[1]);
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+		trans = glm::scale(trans, glm::vec3(t, t, t));
+
+		shader2.setUniformMat4fv("transform", trans);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
