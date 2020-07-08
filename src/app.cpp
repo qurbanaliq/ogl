@@ -52,11 +52,55 @@ int main(void)
 		return -1;
 	}
 
-	float vertices[]  = {
-			-0.5f, -0.5f, 0.0f,
-			-0.5f, 0.0f, 0.0f,
-			 0.0f, -0.5f, 0.0f
+	float vertices[] = {
+	    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
+
+//	float vertices[]  = {
+//			-0.5f, -0.5f, 0.0f,
+//			-0.5f, 0.0f, 0.0f,
+//			 0.0f, -0.5f, 0.0f
+//	};
 
 	// create and bind vertex array, it will contain all the subsequent
 	// vertex and index buffers
@@ -73,7 +117,10 @@ int main(void)
 	// total 4 vertices in this case indexed 0 to 4 to use in index buffer
 	glEnableVertexAttribArray(0);
 	// stride can also be zero since we have tightly packed data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (3 * sizeof(float)));
 
 	// unbind everything (don't unbind buffers before vertex array)
 	// we can now bind only vertex array when we need to draw this data
@@ -142,27 +189,32 @@ int main(void)
 	shader2.use();
 	shader2.setUniform1i("texture1", 0);
 	shader2.setUniform1i("texture2", 1);
-	glBindVertexArray(vao[1]);
+	glBindVertexArray(vao[0]);
 
 	while(!glfwWindowShouldClose(window))
 	{
 		processInput(window);
+
+		glEnable(GL_DEPTH_TEST);
 		// set the color in the buffer
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // state setting function
-		glClear(GL_COLOR_BUFFER_BIT); // state using function
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
 
 		shader2.setUniform1f("visibility", visibility);
 
 		glm::mat4 transform(1.0f);
-		glm::mat4 model = glm::rotate(transform, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		glm::mat4 view = glm::translate(transform, glm::vec3(0.0f, 0.0f, -3.0f));
+		glm::mat4 model = glm::rotate(transform, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(1.0f, 0.5f, 0.0f));
+		glm::mat4 view = glm::translate(transform, glm::vec3(0.0f, 0.0f, -5.0f));
 		glm::mat4 projection = glm::perspective(glm::radians(45.f), 640.0f/480.0f, 0.1f, 100.0f);
+		glm::mat4 projOrtho = glm::ortho(0.0f, 640.0f, 0.0f, 480.0f, 0.1f, 100.0f);
 
 		transform = projection * view * model;
 
 		shader2.setUniformMat4fv("transform", transform);
 
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+//		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
