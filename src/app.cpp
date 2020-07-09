@@ -234,7 +234,7 @@ int main(void)
 	float cameraSpeed;
 	float currentTime;
 	float deltaTime;
-	float lastTime;
+	float lastTime = 0;
 
 	while(!glfwWindowShouldClose(window))
 	{
