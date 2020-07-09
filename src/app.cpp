@@ -226,21 +226,23 @@ int main(void)
 	float viewX = 0.0f, viewY = 0.0f, viewZ = 0.0f;
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+	float radius = 10.0f;
 	while(!glfwWindowShouldClose(window))
 	{
 		processInput(window);
 
 		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-			viewZ += 0.1;
+			radius += 0.1;
 		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-			viewZ -= 0.1;
+			radius -= 0.1;
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 			viewX -= 0.1;
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 			viewX += 0.1;
 
-		glm::mat4 view = glm::translate(transform, glm::vec3(0.0f, 0.0f, -5.0f));
+		float camX = sin(glfwGetTime()) * radius;
+		float camZ = cos(glfwGetTime()) * radius;
+		glm::mat4 view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 640.0f/480.0f, 0.1f, 100.0f);
 
 		glEnable(GL_DEPTH_TEST);
