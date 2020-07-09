@@ -44,7 +44,6 @@ int main(void)
 	}
 
 	glfwMakeContextCurrent(window);
-	//glfwSwapInterval(1);
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -175,9 +174,6 @@ int main(void)
 	Texture texture1("rc/images/container.jpg"),
 			texture2("rc/images/awesomeface.png");
 
-	texture1.bind(0);
-	texture2.bind(1);
-
 	// create shaders
 	//Shader shader("rc/shaders/v.shader", "rc/shaders/f.shader");
 	Shader shader2("rc/shaders/v.shader", "rc/shaders/f2.shader");
@@ -189,7 +185,34 @@ int main(void)
 	shader2.use();
 	shader2.setUniform1i("texture1", 0);
 	shader2.setUniform1i("texture2", 1);
+	shader2.setUniform1f("visibility", visibility);
+
+	glm::vec3 cubePositions[] = {
+	    glm::vec3( 0.0f,  0.0f,  0.0f),
+	    glm::vec3( 2.0f,  5.0f, -15.0f),
+	    glm::vec3(-1.5f, -2.2f, -2.5f),
+	    glm::vec3(-3.8f, -2.0f, -12.3f),
+	    glm::vec3( 2.4f, -0.4f, -3.5f),
+	    glm::vec3(-1.7f,  3.0f, -7.5f),
+	    glm::vec3( 1.3f, -2.0f, -2.5f),
+	    glm::vec3( 1.5f,  2.0f, -2.5f),
+	    glm::vec3( 1.5f,  0.2f, -1.5f),
+	    glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
+	texture1.bind(0);
+	texture2.bind(1);
+
+	// TODO: what is glfwSwapInterval, fps? 1 = 60fps, 5 = 12fps
+	glfwSwapInterval(2);
+
+	int j = 20;
+
 	glBindVertexArray(vao[0]);
+
+	glm::mat4 transform(1.0f);
+	glm::mat4 view = glm::translate(transform, glm::vec3(0.0f, 0.0f, -5.0f));
+	glm::mat4 projection = glm::perspective(glm::radians(45.f), 640.0f/480.0f, 0.1f, 100.0f);
 
 	while(!glfwWindowShouldClose(window))
 	{
@@ -200,22 +223,16 @@ int main(void)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // state setting function
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
 
-		shader2.setUniform1f("visibility", visibility);
-
-		glm::mat4 transform(1.0f);
-		glm::mat4 model = glm::rotate(transform, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(1.0f, 0.5f, 0.0f));
-		glm::mat4 view = glm::translate(transform, glm::vec3(0.0f, 0.0f, -5.0f));
-		glm::mat4 projection = glm::perspective(glm::radians(45.f), 640.0f/480.0f, 0.1f, 100.0f);
-		glm::mat4 projOrtho = glm::ortho(0.0f, 640.0f, 0.0f, 480.0f, 0.1f, 100.0f);
-
-		transform = projection * view * model;
-
-		shader2.setUniformMat4fv("transform", transform);
-
-//		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			glm::mat4 model = glm::translate(transform, cubePositions[i]);
+			model = glm::rotate(model, glm::radians((float)j * (i+1)), glm::vec3(1.0f, 0.3f, 0.5f));
+			glm::mat4 finalTransform = projection * view * model;
+			shader2.setUniformMat4fv("transform", finalTransform);
+	//		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+		j++;
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
