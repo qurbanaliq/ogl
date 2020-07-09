@@ -23,6 +23,11 @@
 
 void processInput(GLFWwindow* window);
 
+void frameBufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
 int main(void)
 {
 	if (!glfwInit())
@@ -43,6 +48,8 @@ int main(void)
 		return -1;
 	}
 
+	glViewport(0, 0, 640, 480);
+
 	glfwMakeContextCurrent(window);
 
 	if (glewInit() != GLEW_OK)
@@ -50,6 +57,8 @@ int main(void)
 		std::cout << "Glew Error" << std::endl;
 		return -1;
 	}
+
+	glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
 
 	float vertices[] = {
 	    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -211,12 +220,28 @@ int main(void)
 	glBindVertexArray(vao[0]);
 
 	glm::mat4 transform(1.0f);
-	glm::mat4 view = glm::translate(transform, glm::vec3(0.0f, 0.0f, -5.0f));
-	glm::mat4 projection = glm::perspective(glm::radians(45.f), 640.0f/480.0f, 0.1f, 100.0f);
+
+	//glm::mat4 projection = glm::ortho(0.0f, 640.0f, 0.0f, 480.0f, -100.0f, 100.0f);
+
+	float viewX = 0.0f, viewY = 0.0f, viewZ = 0.0f;
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	while(!glfwWindowShouldClose(window))
 	{
 		processInput(window);
+
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+			viewZ += 0.1;
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+			viewZ -= 0.1;
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+			viewX -= 0.1;
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+			viewX += 0.1;
+
+		glm::mat4 view = glm::translate(transform, glm::vec3(0.0f, 0.0f, -5.0f));
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 640.0f/480.0f, 0.1f, 100.0f);
 
 		glEnable(GL_DEPTH_TEST);
 		// set the color in the buffer
@@ -226,6 +251,7 @@ int main(void)
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			glm::mat4 model = glm::translate(transform, cubePositions[i]);
+			model = glm::translate(model, glm::vec3(viewX, viewY, viewZ));
 			model = glm::rotate(model, glm::radians((float)j * (i+1)), glm::vec3(1.0f, 0.3f, 0.5f));
 			glm::mat4 finalTransform = projection * view * model;
 			shader2.setUniformMat4fv("transform", finalTransform);
