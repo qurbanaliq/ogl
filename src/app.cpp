@@ -231,22 +231,29 @@ int main(void)
 	glm::vec3 cameraFront(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
-	float cameraSpeed = 0.0f;
+	float cameraSpeed;
+	float currentTime;
+	float deltaTime;
+	float lastTime;
 
 	while(!glfwWindowShouldClose(window))
 	{
 		processInput(window);
 
+		currentTime = glfwGetTime();
+		deltaTime = currentTime - lastTime;
+		lastTime = currentTime;
+
+		cameraSpeed = 2.0f * deltaTime;
+
 		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-			cameraPos += cameraFront;
+			cameraPos += cameraFront * cameraSpeed;
 		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-			cameraPos -= cameraFront;
+			cameraPos -= cameraFront * cameraSpeed;
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-			cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp));
+			cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-			cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp));
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-			std::cout << (cameraPos + cameraFront).x << " " << (cameraPos + cameraFront).y << " " << (cameraPos + cameraFront).z << std::endl; }
+			cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 640.0f/480.0f, 0.1f, 100.0f);
