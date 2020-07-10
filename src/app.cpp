@@ -28,6 +28,41 @@ void frameBufferSizeCallback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+bool firstMouse = true;
+float lastX = 320, lastY = 240;
+float yaw = -90.0f, pitch = 0.0f;
+
+void mouseCallback(GLFWwindow* window, double xPos, double yPos)
+{
+	if (firstMouse)
+	{
+		lastX = xPos; lastY = yPos;
+		firstMouse = false;
+	}
+	float xOffset = xPos - lastX;
+	float yOffset = lastY - yPos;
+
+	lastX = xPos; lastY = yPos;
+
+	const float sensitivity = 0.1f;
+	xOffset *= sensitivity;
+	yOffset *= sensitivity;
+
+	yaw += xOffset; pitch += yOffset;
+
+	if (pitch > 89.0f) pitch = 89.0f;
+	if (pitch < -89.0f) pitch = -89.0f;
+}
+
+float fov = 45.0f;
+
+void scrollCallback(GLFWwindow* window, double xOffset, double yOffset)
+{
+	fov -= (float)yOffset;
+	if (fov < 1.0f) fov = 1.0f;
+	if (fov > 45.0f) fov = 45.0f;
+}
+
 int main(void)
 {
 	if (!glfwInit())
@@ -59,6 +94,11 @@ int main(void)
 	}
 
 	glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
+	// TODO: what is glfwSwapInterval, fps? 1 = 60fps, 5 = 12fps
+	glfwSwapInterval(2);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouseCallback);
+	glfwSetScrollCallback(window, scrollCallback);
 
 	float vertices[] = {
 	    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -212,9 +252,6 @@ int main(void)
 	texture1.bind(0);
 	texture2.bind(1);
 
-	// TODO: what is glfwSwapInterval, fps? 1 = 60fps, 5 = 12fps
-	glfwSwapInterval(2);
-
 	int j = 20;
 
 	glBindVertexArray(vao[0]);
@@ -236,6 +273,8 @@ int main(void)
 	float deltaTime;
 	float lastTime = 0;
 
+	glm::vec3 direction;
+
 	while(!glfwWindowShouldClose(window))
 	{
 		processInput(window);
@@ -246,17 +285,13 @@ int main(void)
 
 		cameraSpeed = 2.0f * deltaTime;
 
-		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-			cameraPos += cameraFront * cameraSpeed;
-		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-			cameraPos -= cameraFront * cameraSpeed;
-		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-			cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-			cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+		direction.y = sin(glm::radians(pitch));
+		direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		cameraFront = glm::normalize(direction);
 
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 640.0f/480.0f, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(fov), 640.0f/480.0f, 0.1f, 100.0f);
 
 		glEnable(GL_DEPTH_TEST);
 		// set the color in the buffer
