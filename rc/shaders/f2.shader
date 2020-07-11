@@ -11,6 +11,7 @@ uniform float visibility;
 
 void main()
 {
+	// texCoord.x sign changed to flip textue horizontally
 	color = mix(texture(texture1, texCoord), texture(texture2, vec2(-texCoord.x, texCoord.y)), visibility);
 	
 }

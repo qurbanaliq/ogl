@@ -15,22 +15,43 @@
 #include <iostream>
 #include <string>
 #include <math.h>
-#include "shader.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "texture.h"
 
-void processInput(GLFWwindow* window);
+#include "texture.h"
+#include "shader.h"
+#include "camera.h"
+
+const unsigned int SCR_WIDTH = 640;
+const unsigned int SCR_HEIGHT = 480;
+
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+bool firstMouse = true;
+float lastX = SCR_WIDTH/2.0f, lastY = SCR_HEIGHT/2.0f;
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
+void processInput(GLFWwindow *window)
+{
+	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		camera.processKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		camera.processKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		camera.processKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		camera.processKeyboard(RIGHT, deltaTime);
+}
 
 void frameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
-
-bool firstMouse = true;
-float lastX = 320, lastY = 240;
-float yaw = -90.0f, pitch = 0.0f;
 
 void mouseCallback(GLFWwindow* window, double xPos, double yPos)
 {
@@ -44,23 +65,14 @@ void mouseCallback(GLFWwindow* window, double xPos, double yPos)
 
 	lastX = xPos; lastY = yPos;
 
-	const float sensitivity = 0.1f;
-	xOffset *= sensitivity;
-	yOffset *= sensitivity;
-
-	yaw += xOffset; pitch += yOffset;
-
-	if (pitch > 89.0f) pitch = 89.0f;
-	if (pitch < -89.0f) pitch = -89.0f;
+	camera.processMouseMovement(xOffset, yOffset);
 }
 
 float fov = 45.0f;
 
 void scrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 {
-	fov -= (float)yOffset;
-	if (fov < 1.0f) fov = 1.0f;
-	if (fov > 45.0f) fov = 45.0f;
+	camera.processMouseScroll((float)yOffset);
 }
 
 int main(void)
@@ -258,40 +270,22 @@ int main(void)
 
 	glm::mat4 transform(1.0f);
 
-	//glm::mat4 projection = glm::ortho(0.0f, 640.0f, 0.0f, 480.0f, -100.0f, 100.0f);
-
-	float viewX = 0.0f, viewY = 0.0f, viewZ = 0.0f;
-
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	glm::vec3 cameraPos(0.0f, 0.0f, 3.0f);
-	glm::vec3 cameraFront(0.0f, 0.0f, -1.0f);
-	glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
-
-	float cameraSpeed;
-	float currentTime;
-	float deltaTime;
-	float lastTime = 0;
-
 	glm::vec3 direction;
+
+	float currentTime;
 
 	while(!glfwWindowShouldClose(window))
 	{
 		processInput(window);
 
 		currentTime = glfwGetTime();
-		deltaTime = currentTime - lastTime;
-		lastTime = currentTime;
+		deltaTime = currentTime - lastFrame;
+		lastFrame = currentTime;
 
-		cameraSpeed = 2.0f * deltaTime;
-
-		direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-		direction.y = sin(glm::radians(pitch));
-		direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-		cameraFront = glm::normalize(direction);
-
-		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		glm::mat4 projection = glm::perspective(glm::radians(fov), 640.0f/480.0f, 0.1f, 100.0f);
+		glm::mat4 view = camera.getViewMatrix();
+		glm::mat4 projection = glm::perspective(glm::radians(camera.getZoom()), 640.0f/480.0f, 0.1f, 100.0f);
 
 		glEnable(GL_DEPTH_TEST);
 		// set the color in the buffer
@@ -301,7 +295,6 @@ int main(void)
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			glm::mat4 model = glm::translate(transform, cubePositions[i]);
-			model = glm::translate(model, glm::vec3(viewX, viewY, viewZ));
 			model = glm::rotate(model, glm::radians((float)j * (i+1)), glm::vec3(1.0f, 0.3f, 0.5f));
 			glm::mat4 finalTransform = projection * view * model;
 			shader2.setUniformMat4fv("transform", finalTransform);
@@ -319,10 +312,4 @@ int main(void)
 	glDeleteBuffers(2, vbo);
 	glfwTerminate();
 	return 0;
-}
-
-void processInput(GLFWwindow *window)
-{
-	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
 }
