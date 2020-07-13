@@ -26,7 +26,7 @@
 const unsigned int SCR_WIDTH = 640;
 const unsigned int SCR_HEIGHT = 480;
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
 bool firstMouse = true;
 float lastX = SCR_WIDTH/2.0f, lastY = SCR_HEIGHT/2.0f;
 
@@ -46,6 +46,11 @@ void processInput(GLFWwindow *window)
 		camera.processKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		camera.processKeyboard(RIGHT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.processKeyboard(UPWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			camera.processKeyboard(DOWNWARD, deltaTime);
+
 }
 
 void frameBufferSizeCallback(GLFWwindow* window, int width, int height)
@@ -156,20 +161,14 @@ int main(void)
 	    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
-//	float vertices[]  = {
-//			-0.5f, -0.5f, 0.0f,
-//			-0.5f, 0.0f, 0.0f,
-//			 0.0f, -0.5f, 0.0f
-//	};
-
 	// create and bind vertex array, it will contain all the subsequent
 	// vertex and index buffers
-	unsigned int vao[2], vbo[2];
-	glGenVertexArrays(2, vao);
-	glGenBuffers(2, vbo);
+	unsigned int vao, vbo;
+	glGenVertexArrays(1, &vao);
+	glGenBuffers(1, &vbo);
 
-	glBindVertexArray(vao[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	// defines the layout of the data and assign index zero to this data
@@ -179,74 +178,28 @@ int main(void)
 	// stride can also be zero since we have tightly packed data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
 
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (3 * sizeof(float)));
+//	glEnableVertexAttribArray(2);
+//	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (3 * sizeof(float)));
 
 	// unbind everything (don't unbind buffers before vertex array)
 	// we can now bind only vertex array when we need to draw this data
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
-	float vertices2[] = {
-			//positions			 //colors			//tex coords
-			-0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-			0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-			0.5f, 0.5f, 0.0f,    0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
-			-0.5f, 0.5f, 0.0f,   1.0f, 1.0f, 0.0f,  0.0f, 1.0f
-	};
-
-	unsigned int indices[] = {
-			0, 1, 2,
-			2, 3, 0
-	};
-
-	unsigned int ibo;
-	glGenBuffers(1, &ibo);
-
-	// second triangle
-	glBindVertexArray(vao[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
-
-	// for color
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-			(void*)(3 * sizeof(float)));
-
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-			(void*)(6 * sizeof(float)));
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
-	// creating a texture
-
+	// creating a textur
 	//load the texture
 	Texture texture1("rc/images/container.jpg"),
 			texture2("rc/images/awesomeface.png");
-
+//	texture1.bind(0);
+//	texture2.bind(1);
 	// create shaders
 	//Shader shader("rc/shaders/v.shader", "rc/shaders/f.shader");
-	Shader shader2("rc/shaders/v.shader", "rc/shaders/f2.shader");
+	Shader shader("rc/shaders/v.shader", "rc/shaders/f2.shader");
+	Shader lightShader("rc/shaders/v.shader", "rc/shaders/f.shader");
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	float visibility = 0.2;
-
-	shader2.use();
-	shader2.setUniform1i("texture1", 0);
-	shader2.setUniform1i("texture2", 1);
-	shader2.setUniform1f("visibility", visibility);
+//	shader2.setUniform1i("texture1", 0);
+//	shader2.setUniform1i("texture2", 1);
 
 	glm::vec3 cubePositions[] = {
 	    glm::vec3( 0.0f,  0.0f,  0.0f),
@@ -261,20 +214,22 @@ int main(void)
 	    glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
-	texture1.bind(0);
-	texture2.bind(1);
-
-	int j = 20;
-
-	glBindVertexArray(vao[0]);
+	glBindVertexArray(vao);
 
 	glm::mat4 transform(1.0f);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	int j;
+
 	glm::vec3 direction;
 
+	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 	float currentTime;
+	shader.use();
+	shader.setUniform3f("objectColor", 1.0f, 0.5f, 0.31f);
+	shader.setUniform3f("lightColor", 1.0f, 1.0f, 1.0f);
 
 	while(!glfwWindowShouldClose(window))
 	{
@@ -292,24 +247,32 @@ int main(void)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // state setting function
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
 
-		for (unsigned int i = 0; i < 10; i++)
-		{
-			glm::mat4 model = glm::translate(transform, cubePositions[i]);
-			model = glm::rotate(model, glm::radians((float)j * (i+1)), glm::vec3(1.0f, 0.3f, 0.5f));
-			glm::mat4 finalTransform = projection * view * model;
-			shader2.setUniformMat4fv("transform", finalTransform);
-	//		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-		j++;
+		shader.use();
+		//transform the object cube
+		glm::mat4 model = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0f));
+		glm::mat4 finalTransform = projection * view * model;
+		shader.setUniformMat4fv("transform", finalTransform);
+//		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		lightShader.use();
+		//transform the light cube
+		glm::mat4 lightModel = glm::translate(transform, lightPos);
+		lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+		finalTransform = projection * view * lightModel;
+		lightShader.setUniformMat4fv("transform", finalTransform);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 	glBindVertexArray(0);
 //	glDeleteProgram(shaderProgram);
 //	glDeleteProgram(shaderProgramYellow);
-	glDeleteVertexArrays(2, vao);
-	glDeleteBuffers(2, vbo);
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
 	glfwTerminate();
 	return 0;
 }
