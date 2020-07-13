@@ -233,8 +233,6 @@ int main(void)
 	shader.use();
 	shader.setUniform3f("objectColor", 1.0f, 0.5f, 0.31f);
 	shader.setUniformVec3("lightColor", lightColor);
-	shader.setUniformVec3("lightPos", lightPos);
-
 
 	// light shader
 	lightShader.use();
@@ -264,11 +262,13 @@ int main(void)
 		shader.setUniformMat4("view", view);
 		shader.setUniformMat4("projection", projection);
 		shader.setUniformVec3("viewPos", camera.getPosition());
+		shader.setUniformVec3("lightPos", lightPos);
 //		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		lightShader.use();
 		//transform the light cube
+		lightPos = glm::vec3(sin(glfwGetTime()), sin(glfwGetTime()), cos(glfwGetTime()));
 		glm::mat4 lightModel = glm::translate(transform, lightPos);
 		lightModel = glm::scale(lightModel, glm::vec3(0.1f));
 		finalTransform = projection * view * lightModel;
