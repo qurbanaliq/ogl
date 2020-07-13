@@ -1,4 +1,5 @@
 #version 330
+// light shader
 
 out vec4 color;
 

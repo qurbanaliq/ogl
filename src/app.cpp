@@ -118,47 +118,47 @@ int main(void)
 	glfwSetScrollCallback(window, scrollCallback);
 
 	float vertices[] = {
-	    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-	     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,
+	     0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,
+	     0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,
+	     0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,
+	    -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,
 
-	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+	     0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+	     0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+	     0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+	    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
 
-	    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	    -0.5f,  0.5f,  0.5f,  -1.0f, 0.0f, 0.0f,
+	    -0.5f,  0.5f, -0.5f,  -1.0f, 0.0f, 0.0f,
+	    -0.5f, -0.5f, -0.5f,  -1.0f, 0.0f, 0.0f,
+	    -0.5f, -0.5f, -0.5f,  -1.0f, 0.0f, 0.0f,
+	    -0.5f, -0.5f,  0.5f,  -1.0f, 0.0f, 0.0f,
+	    -0.5f,  0.5f,  0.5f,  -1.0f, 0.0f, 0.0f,
 
-	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+	     0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+	     0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+	     0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+	     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
 
-	    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-	     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
+	     0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
+	     0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
+	     0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
+	    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
 
-	    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-	    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+	     0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+	     0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+	     0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+	    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+	    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f
 	};
 
 	// create and bind vertex array, it will contain all the subsequent
@@ -176,10 +176,10 @@ int main(void)
 	// total 4 vertices in this case indexed 0 to 4 to use in index buffer
 	glEnableVertexAttribArray(0);
 	// stride can also be zero since we have tightly packed data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
 
-//	glEnableVertexAttribArray(2);
-//	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)));
 
 	// unbind everything (don't unbind buffers before vertex array)
 	// we can now bind only vertex array when we need to draw this data
@@ -224,14 +224,19 @@ int main(void)
 
 	glm::vec3 direction;
 
-	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+	glm::vec3 lightPos(0.2f, 0.0f, 2.0f);
 	glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 
 	float currentTime;
+
+	// object shader
 	shader.use();
 	shader.setUniform3f("objectColor", 1.0f, 0.5f, 0.31f);
-	shader.setUniform3f("lightColor", lightColor.r, lightColor.g, lightColor.b);
+	shader.setUniformVec3("lightColor", lightColor);
+	shader.setUniformVec3("lightPos", lightPos);
 
+
+	// light shader
 	lightShader.use();
 	lightShader.setUniform3f("lightColor", lightColor.r, lightColor.g, lightColor.b);
 
@@ -255,16 +260,21 @@ int main(void)
 		//transform the object cube
 		glm::mat4 model = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0f));
 		glm::mat4 finalTransform = projection * view * model;
-		shader.setUniformMat4fv("transform", finalTransform);
+		shader.setUniformMat4("model", model);
+		shader.setUniformMat4("view", view);
+		shader.setUniformMat4("projection", projection);
+		shader.setUniformVec3("viewPos", camera.getPosition());
 //		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		lightShader.use();
 		//transform the light cube
 		glm::mat4 lightModel = glm::translate(transform, lightPos);
-		lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+		lightModel = glm::scale(lightModel, glm::vec3(0.1f));
 		finalTransform = projection * view * lightModel;
-		lightShader.setUniformMat4fv("transform", finalTransform);
+		shader.setUniformMat4("model", lightModel);
+		shader.setUniformMat4("view", view);
+		shader.setUniformMat4("projection", projection);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
