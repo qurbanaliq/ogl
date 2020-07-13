@@ -225,11 +225,15 @@ int main(void)
 	glm::vec3 direction;
 
 	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+	glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 
 	float currentTime;
 	shader.use();
 	shader.setUniform3f("objectColor", 1.0f, 0.5f, 0.31f);
-	shader.setUniform3f("lightColor", 1.0f, 1.0f, 1.0f);
+	shader.setUniform3f("lightColor", lightColor.r, lightColor.g, lightColor.b);
+
+	lightShader.use();
+	lightShader.setUniform3f("lightColor", lightColor.r, lightColor.g, lightColor.b);
 
 	while(!glfwWindowShouldClose(window))
 	{
