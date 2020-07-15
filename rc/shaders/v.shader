@@ -14,7 +14,6 @@ void main(void)
 {
 	
 	gl_Position = projection * view * model * vec4(aPos, 1.0f);
-	fragPos = aPos; //vec3(model * vec4(aPos, 1.0));
-	//Normal = mat3(transpose(inverse(model))) * aNormal; // for non-uniform scaling
-	Normal = aNormal;
+	fragPos = vec3(model * vec4(aPos, 1.0)); // to translate the fragments to world space
+	Normal = mat3(transpose(inverse(model))) * aNormal; // for non-uniform scaling
 }

@@ -255,8 +255,10 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
 
 		shader.use();
+		//lightPos = glm::vec3(sin(glfwGetTime()), sin(glfwGetTime()), cos(glfwGetTime()));
 		//transform the object cube
 		glm::mat4 model = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians((float)glfwGetTime() * 20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		glm::mat4 finalTransform = projection * view * model;
 		shader.setUniformMat4("model", model);
 		shader.setUniformMat4("view", view);
@@ -268,7 +270,6 @@ int main(void)
 
 		lightShader.use();
 		//transform the light cube
-		lightPos = glm::vec3(sin(glfwGetTime()), sin(glfwGetTime()), cos(glfwGetTime()));
 		glm::mat4 lightModel = glm::translate(transform, lightPos);
 		lightModel = glm::scale(lightModel, glm::vec3(0.1f));
 		finalTransform = projection * view * lightModel;
