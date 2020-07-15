@@ -240,13 +240,14 @@ int main(void)
 	shader.setUniform1f("material.shininess", 32.0f);
 
 	//light color
-	shader.setUniformVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-	shader.setUniformVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-	shader.setUniformVec3("light.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+	//shader.setUniformVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+	//shader.setUniformVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+	glm::vec3 specularColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	shader.setUniformVec3("light.specular", specularColor);
 
 	// light shader
-	lightShader.use();
-	lightShader.setUniform3f("lightColor", lightColor.r, lightColor.g, lightColor.b);
+	//lightShader.use();
+	//lightShader.setUniform3f("lightColor", lightColor.r, lightColor.g, lightColor.b);
 
 	while(!glfwWindowShouldClose(window))
 	{
@@ -265,6 +266,14 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
 
 		shader.use();
+		// light color
+		lightColor.r = sin(glfwGetTime() * 2.0f);
+		lightColor.g = sin(glfwGetTime() * 0.7f);
+		lightColor.b = sin(glfwGetTime() * 1.3f);
+		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+		shader.setUniformVec3("light.diffuse", diffuseColor);
+		shader.setUniformVec3("light.ambient", ambientColor);
 		//lightPos = glm::vec3(sin(glfwGetTime()), sin(glfwGetTime()), cos(glfwGetTime()));
 		//transform the object cube
 		glm::mat4 model = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0f));
@@ -274,11 +283,12 @@ int main(void)
 		shader.setUniformMat4("view", view);
 		shader.setUniformMat4("projection", projection);
 		shader.setUniformVec3("viewPos", camera.getPosition());
-		shader.setUniformVec3("lightPos", lightPos);
+		shader.setUniformVec3("light.position", lightPos);
 //		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		lightShader.use();
+		lightShader.setUniformVec3("lightColor", (ambientColor + diffuseColor + specularColor));
 		//transform the light cube
 		glm::mat4 lightModel = glm::translate(transform, lightPos);
 		lightModel = glm::scale(lightModel, glm::vec3(0.1f));
