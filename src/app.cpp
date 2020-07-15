@@ -233,6 +233,16 @@ int main(void)
 	shader.use();
 	shader.setUniform3f("objectColor", 1.0f, 0.5f, 0.31f);
 	shader.setUniformVec3("lightColor", lightColor);
+	// object color
+	shader.setUniformVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+	shader.setUniformVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+	shader.setUniformVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+	shader.setUniform1f("material.shininess", 32.0f);
+
+	//light color
+	shader.setUniformVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+	shader.setUniformVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+	shader.setUniformVec3("light.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 
 	// light shader
 	lightShader.use();
