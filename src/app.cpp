@@ -199,9 +199,11 @@ int main(void)
 	// creating a textur
 	//load the texture
 	Texture texture1("rc/images/container2.png"),
-			texture2("rc/images/container2_specular.png");
+			texture2("rc/images/container2_specular.png"),
+			texture3("rc/images/matrix.jpg");
 	texture1.bind(0);
 	texture2.bind(1);
+	texture3.bind(2);
 	// create shaders
 	//Shader shader("rc/shaders/v.shader", "rc/shaders/f.shader");
 	Shader shader("rc/shaders/v.shader", "rc/shaders/f2.shader");
@@ -228,6 +230,7 @@ int main(void)
 	shader.setUniformVec3("lightColor", lightColor);
 	shader.setUniform1i("material.diffuse", 0);
 	shader.setUniform1i("material.specular", 1);
+	shader.setUniform1i("material.emission", 2);
 	// object color
 //	shader.setUniformVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
 //	shader.setUniformVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
