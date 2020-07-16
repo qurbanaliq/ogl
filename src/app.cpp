@@ -199,7 +199,7 @@ int main(void)
 	// creating a textur
 	//load the texture
 	Texture texture1("rc/images/container2.png"),
-			texture2("rc/images/container2_specular.png");
+			texture2("rc/images/lighting_maps_specular_color.png");
 	texture1.bind(0);
 	texture2.bind(1);
 	// create shaders
@@ -244,7 +244,7 @@ int main(void)
 
 	// light shader
 	lightShader.use();
-	lightShader.setUniform3f("lightColor", lightColor.r, lightColor.g, lightColor.b);
+	lightShader.setUniformVec3("lightColor", lightColor);
 
 	while(!glfwWindowShouldClose(window))
 	{
