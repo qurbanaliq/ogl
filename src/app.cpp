@@ -277,7 +277,9 @@ int main(void)
 		shader.setUniformMat4("projection", projection);
 		shader.setUniformVec3("viewPos", camera.getPosition());
 		shader.setUniformVec3("light.position", lightPos);
-		shader.setUniformVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+		shader.setUniform1f("light.constant", 1.0f);
+		shader.setUniform1f("light.linear", 0.09f);
+		shader.setUniform1f("light.quadratic", 0.02f);
 //		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		for (int i=1; i<=10; i++)
 		{
