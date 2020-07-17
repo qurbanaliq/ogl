@@ -196,7 +196,7 @@ int main(void)
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// creating a textur
+	// creating a texture
 	//load the texture
 	Texture texture1("rc/images/container2.png"),
 			texture2("rc/images/container2_specular.png"),
@@ -215,8 +215,6 @@ int main(void)
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	int j;
-
 	glm::vec3 direction;
 
 	glm::vec3 lightPos(0.2f, 0.0f, 2.0f);
@@ -231,21 +229,30 @@ int main(void)
 	shader.setUniform1i("material.diffuse", 0);
 	shader.setUniform1i("material.specular", 1);
 	shader.setUniform1i("material.emission", 2);
-	// object color
-//	shader.setUniformVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
-//	shader.setUniformVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
-//	shader.setUniformVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 	shader.setUniform1f("material.shininess", 64.0f);
 
 	//light color
 	shader.setUniformVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-	shader.setUniformVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+	shader.setUniformVec3("light.diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
 	glm::vec3 specularColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	shader.setUniformVec3("light.specular", specularColor);
 
 	// light shader
 	lightShader.use();
 	lightShader.setUniformVec3("lightColor", lightColor);
+
+	glm::vec3 cubePositions[] = {
+	    glm::vec3( 0.0f,  0.0f,  0.0f),
+	    glm::vec3( 2.0f,  5.0f, -15.0f),
+	    glm::vec3(-1.5f, -2.2f, -2.5f),
+	    glm::vec3(-3.8f, -2.0f, -12.3f),
+	    glm::vec3( 2.4f, -0.4f, -3.5f),
+	    glm::vec3(-1.7f,  3.0f, -7.5f),
+	    glm::vec3( 1.3f, -2.0f, -2.5f),
+	    glm::vec3( 1.5f,  2.0f, -2.5f),
+	    glm::vec3( 1.5f,  0.2f, -1.5f),
+	    glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
 
 	while(!glfwWindowShouldClose(window))
 	{
@@ -262,26 +269,28 @@ int main(void)
 		// set the color in the buffer
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // state setting function
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
-
+		float radius = 5.0f;
+		//lightPos = glm::vec3(0.0f, sin(glfwGetTime()), cos(glfwGetTime())) * radius;
 		shader.use();
 		//transform the object cube
-		glm::mat4 model = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians((float)glfwGetTime() * 20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		glm::mat4 finalTransform = projection * view * model;
-		shader.setUniformMat4("model", model);
 		shader.setUniformMat4("view", view);
 		shader.setUniformMat4("projection", projection);
 		shader.setUniformVec3("viewPos", camera.getPosition());
 		shader.setUniformVec3("light.position", lightPos);
+		shader.setUniformVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
 //		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		for (int i=1; i<=10; i++)
+		{
+			glm::mat4 model = glm::translate(transform, cubePositions[i-1]);
+			model = glm::rotate(model, glm::radians(i * 20.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+			shader.setUniformMat4("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		lightShader.use();
-//		lightShader.setUniformVec3("lightColor", (ambientColor + diffuseColor + specularColor));
 		//transform the light cube
 		glm::mat4 lightModel = glm::translate(transform, lightPos);
 		lightModel = glm::scale(lightModel, glm::vec3(0.1f));
-		finalTransform = projection * view * lightModel;
 		shader.setUniformMat4("model", lightModel);
 		shader.setUniformMat4("view", view);
 		shader.setUniformMat4("projection", projection);
