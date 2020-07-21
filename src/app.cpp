@@ -197,6 +197,26 @@ int main(void)
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	glm::vec3 cubePositions[] = {
+	    glm::vec3( 0.0f,  0.0f,  0.0f),
+	    glm::vec3( 2.0f,  5.0f, -10.0f),
+	    glm::vec3(-1.5f, -2.2f, -2.5f),
+	    glm::vec3(-3.8f, -2.0f, -8.3f),
+	    glm::vec3( 2.4f, -0.4f, -3.5f),
+	    glm::vec3(-1.7f,  3.0f, -7.5f),
+	    glm::vec3( 1.3f, -2.0f, -2.5f),
+	    glm::vec3( 1.5f,  2.0f, -2.5f),
+	    glm::vec3( 1.5f,  0.2f, -1.5f),
+	    glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
+	std::array<glm::vec3, 4> pointLightPositions = {
+		glm::vec3( 0.7f,  1.0f,  0.5f),
+		glm::vec3( 3.3f, -2.3f, -1.0f),
+		glm::vec3(1.0f,  2.0f, -8.0f),
+		glm::vec3( -2.0f,  0.0f, -3.0f)
+	};
+
 	// creating a texture
 	//load the texture
 	Texture texture1("rc/images/container2.png"),
@@ -213,28 +233,8 @@ int main(void)
 	glm::mat4 transform(1.0f);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glm::vec3 lightPos(0.2f, 0.0f, 2.0f);
-	glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
-
-	glm::vec3 cubePositions[] = {
-	    glm::vec3( 0.0f,  0.0f,  0.0f),
-	    glm::vec3( 2.0f,  5.0f, -15.0f),
-	    glm::vec3(-1.5f, -2.2f, -2.5f),
-	    glm::vec3(-3.8f, -2.0f, -12.3f),
-	    glm::vec3( 2.4f, -0.4f, -3.5f),
-	    glm::vec3(-1.7f,  3.0f, -7.5f),
-	    glm::vec3( 1.3f, -2.0f, -2.5f),
-	    glm::vec3( 1.5f,  2.0f, -2.5f),
-	    glm::vec3( 1.5f,  0.2f, -1.5f),
-	    glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-
-	std::array<glm::vec3, 4> pointLightPositions = {
-		glm::vec3( 0.7f,  0.2f,  2.0f),
-		glm::vec3( 2.3f, -3.3f, -4.0f),
-		glm::vec3(-4.0f,  2.0f, -12.0f),
-		glm::vec3( 0.0f,  0.0f, -3.0f)
-	};
+	//glm::vec3 lightPos(0.2f, 0.0f, 2.0f);
+	glm::vec3 lightColor(0.3f, 1.0f, 0.3f);
 
 	// object shader
 	shader.use();
@@ -242,6 +242,7 @@ int main(void)
 	shader.setUniform1i("material.specular", 1);
 	shader.setUniform1i("material.emission", 2);
 	shader.setUniform1f("material.shininess", 64.0f);
+	shader.setUniformVec3("lightColor", lightColor);
 
 	// light shader
 	lightShader.use();
@@ -264,7 +265,7 @@ int main(void)
 
 		glEnable(GL_DEPTH_TEST);
 		// set the color in the buffer
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // state setting function
+		glClearColor(200/255.0f, 200/255.0f, 200/255.0f, 1.0f); // state setting function
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
 		float radius = 5.0f;
 		shader.use();
@@ -281,14 +282,14 @@ int main(void)
 			shader.setUniform1f("pointLights[" + num.str() + "].constant", 1.0f);
 			shader.setUniform1f("pointLights[" + num.str() + "].linear", 0.09f);
 			shader.setUniform1f("pointLights[" + num.str() + "].quadratic", 0.032f);
-			shader.setUniformVec3("pointLights[" + num.str() + "].ambient", glm::vec3(0.1f));
-			shader.setUniformVec3("pointLights[" + num.str() + "].diffuse", glm::vec3(0.5f));
-			shader.setUniformVec3("pointLights[" + num.str() + "].specular", glm::vec3(1.0f));
+			shader.setUniformVec3("pointLights[" + num.str() + "].ambient", glm::vec3(0.1f) * lightColor);
+			shader.setUniformVec3("pointLights[" + num.str() + "].diffuse", glm::vec3(1.0f) * lightColor);
+			shader.setUniformVec3("pointLights[" + num.str() + "].specular", glm::vec3(1.0f) * lightColor);
 		}
 		// direction light
 		shader.setUniformVec3("dirLight.direction", glm::vec3(-0.2f, 1.0f, -0.3f));
 		shader.setUniformVec3("dirLight.ambient", glm::vec3(0.1f));
-		shader.setUniformVec3("dirLight.diffuse", glm::vec3(0.5f));
+		shader.setUniformVec3("dirLight.diffuse", glm::vec3(1.0f));
 		shader.setUniformVec3("dirLight.specular", glm::vec3(1.0f));
 		// spot light
 		shader.setUniformVec3("spotLight.position", camera.getPosition());
@@ -299,7 +300,7 @@ int main(void)
 		shader.setUniform1f("spotLight.linear", 0.09f);
 		shader.setUniform1f("spotLight.quadratic", 0.032f);
 		shader.setUniformVec3("spotLight.ambient", glm::vec3(0.1f));
-		shader.setUniformVec3("spotLight.diffuse", glm::vec3(0.5f));
+		shader.setUniformVec3("spotLight.diffuse", glm::vec3(1.0f));
 		shader.setUniformVec3("spotLight.specular", glm::vec3(1.0f));
 //		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		for (int i=1; i<=10; i++)
