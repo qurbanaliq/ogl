@@ -252,6 +252,8 @@ int main(void)
 
 	glBindVertexArray(vao);
 
+	float j = 1;
+
 	while(!glfwWindowShouldClose(window))
 	{
 		processInput(window);
@@ -306,10 +308,12 @@ int main(void)
 		for (int i=1; i<=10; i++)
 		{
 			glm::mat4 model = glm::translate(transform, cubePositions[i-1]);
-			model = glm::rotate(model, glm::radians(i * 20.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+			model = glm::rotate(model, glm::radians(i * j), glm::vec3(1.0f, 0.3f, 0.5f));
 			shader.setUniformMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
+
+		j += 0.2;
 
 		lightShader.use();
 		//transform the light cube
