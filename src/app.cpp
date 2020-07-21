@@ -15,6 +15,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <array>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -215,17 +216,6 @@ int main(void)
 	glm::vec3 lightPos(0.2f, 0.0f, 2.0f);
 	glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 
-	// object shader
-	shader.use();
-	shader.setUniform1i("material.diffuse", 0);
-	shader.setUniform1i("material.specular", 1);
-	shader.setUniform1i("material.emission", 2);
-	shader.setUniform1f("material.shininess", 64.0f);
-
-	// light shader
-	lightShader.use();
-	lightShader.setUniformVec3("lightColor", lightColor);
-
 	glm::vec3 cubePositions[] = {
 	    glm::vec3( 0.0f,  0.0f,  0.0f),
 	    glm::vec3( 2.0f,  5.0f, -15.0f),
@@ -239,12 +229,23 @@ int main(void)
 	    glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
-	glm::vec3 pointLightPositions[] = {
+	std::array<glm::vec3, 4> pointLightPositions = {
 		glm::vec3( 0.7f,  0.2f,  2.0f),
 		glm::vec3( 2.3f, -3.3f, -4.0f),
 		glm::vec3(-4.0f,  2.0f, -12.0f),
 		glm::vec3( 0.0f,  0.0f, -3.0f)
 	};
+
+	// object shader
+	shader.use();
+	shader.setUniform1i("material.diffuse", 0);
+	shader.setUniform1i("material.specular", 1);
+	shader.setUniform1i("material.emission", 2);
+	shader.setUniform1f("material.shininess", 64.0f);
+
+	// light shader
+	lightShader.use();
+	lightShader.setUniformVec3("lightColor", lightColor);
 
 	float currentTime;
 
@@ -271,7 +272,8 @@ int main(void)
 		shader.setUniformMat4("view", view);
 		shader.setUniformMat4("projection", projection);
 		shader.setUniformVec3("viewPos", camera.getPosition());
-		for (int i = 0; i<4; i++)
+		// point lights
+		for (int i = 0; i< pointLightPositions.size(); i++)
 		{
 			std::stringstream num;
 			num << i;
@@ -279,14 +281,26 @@ int main(void)
 			shader.setUniform1f("pointLights[" + num.str() + "].constant", 1.0f);
 			shader.setUniform1f("pointLights[" + num.str() + "].linear", 0.09f);
 			shader.setUniform1f("pointLights[" + num.str() + "].quadratic", 0.032f);
-			shader.setUniformVec3("pointLights[" + num.str() + "].ambient", glm::vec3(0.1f, 0.1f, 0.1f));
-			shader.setUniformVec3("pointLights[" + num.str() + "].diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-			shader.setUniformVec3("pointLights[" + num.str() + "].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+			shader.setUniformVec3("pointLights[" + num.str() + "].ambient", glm::vec3(0.1f));
+			shader.setUniformVec3("pointLights[" + num.str() + "].diffuse", glm::vec3(0.5f));
+			shader.setUniformVec3("pointLights[" + num.str() + "].specular", glm::vec3(1.0f));
 		}
+		// direction light
 		shader.setUniformVec3("dirLight.direction", glm::vec3(-0.2f, 1.0f, -0.3f));
-		shader.setUniformVec3("dirLight.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
-		shader.setUniformVec3("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-		shader.setUniformVec3("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		shader.setUniformVec3("dirLight.ambient", glm::vec3(0.1f));
+		shader.setUniformVec3("dirLight.diffuse", glm::vec3(0.5f));
+		shader.setUniformVec3("dirLight.specular", glm::vec3(1.0f));
+		// spot light
+		shader.setUniformVec3("spotLight.position", camera.getPosition());
+		shader.setUniformVec3("spotLight.direction", camera.getFront());
+		shader.setUniform1f("spotLight.cutoff", glm::cos(glm::radians(12.5f)));
+		shader.setUniform1f("spotLight.outerCutoff", glm::cos(glm::radians(15.0f)));
+		shader.setUniform1f("spotLight.constant", 1.0f);
+		shader.setUniform1f("spotLight.linear", 0.09f);
+		shader.setUniform1f("spotLight.quadratic", 0.032f);
+		shader.setUniformVec3("spotLight.ambient", glm::vec3(0.1f));
+		shader.setUniformVec3("spotLight.diffuse", glm::vec3(0.5f));
+		shader.setUniformVec3("spotLight.specular", glm::vec3(1.0f));
 //		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		for (int i=1; i<=10; i++)
 		{
@@ -298,7 +312,7 @@ int main(void)
 
 		lightShader.use();
 		//transform the light cube
-		for (int i = 0; i<4; i++)
+		for (int i = 0; i< pointLightPositions.size(); i++)
 		{
 			glm::mat4 lightModel = glm::translate(transform, pointLightPositions[i]);
 			lightModel = glm::scale(lightModel, glm::vec3(0.1f));
@@ -307,9 +321,6 @@ int main(void)
 			shader.setUniformMat4("projection", projection);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-
-
-
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
