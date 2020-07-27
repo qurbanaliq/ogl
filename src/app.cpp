@@ -19,10 +19,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
 
-#include "texture.h"
-#include "shader.h"
-#include "camera.h"
+#include "ogllib/texture.h"
+#include "ogllib/shader.h"
+#include "ogllib/camera.h"
+#include "ogllib/mesh.h"
 
 const unsigned int SCR_WIDTH = 640;
 const unsigned int SCR_HEIGHT = 480;
@@ -168,7 +170,6 @@ int main(void)
 	    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 	};
 
-
 	// create and bind vertex array, it will contain all the subsequent
 	// vertex and index buffers
 	unsigned int vao, vbo;
@@ -219,16 +220,16 @@ int main(void)
 
 	// creating a texture
 	//load the texture
-	Texture texture1("rc/images/container2.png"),
-			texture2("rc/images/container2_specular.png"),
-			texture3("rc/images/matrix.jpg");
+	Texture texture1("D:\\workspacec\\ogl\\rc\\images\\container2.png", Texture::DIFFUSE),
+			texture2("D:\\workspacec\\ogl\\rc\\images\\container2_specular.png", Texture::SPECULAR),
+			texture3("D:\\workspacec\\ogl\\rc\\images\\matrix.jpg", Texture::DIFFUSE);
 	texture1.bind(0);
 	texture2.bind(1);
 	texture3.bind(2);
 	// create shaders
 	//Shader shader("rc/shaders/v.shader", "rc/shaders/f.shader");
-	Shader shader("rc/shaders/v.shader", "rc/shaders/f2.shader");
-	Shader lightShader("rc/shaders/v.shader", "rc/shaders/f.shader");
+	Shader shader("D:\\workspacec\\ogl\\rc\\shaders\\v.shader", "D:\\workspacec\\ogl\\rc\\shaders\\f2.shader");
+	Shader lightShader("D:\\workspacec\\ogl\\rc\\shaders\\v.shader", "D:\\workspacec\\ogl\\rc\\shaders\\f.shader");
 
 	glm::mat4 transform(1.0f);
 
@@ -238,8 +239,8 @@ int main(void)
 
 	// object shader
 	shader.use();
-	shader.setUniform1i("material.diffuse", 0);
-	shader.setUniform1i("material.specular", 1);
+	shader.setUniform1i("material.diffuse1", 0);
+	shader.setUniform1i("material.specular1", 1);
 	shader.setUniform1i("material.emission", 2);
 	shader.setUniform1f("material.shininess", 64.0f);
 	shader.setUniformVec3("lightColor", lightColor);
@@ -278,15 +279,14 @@ int main(void)
 		// point lights
 		for (int i = 0; i< pointLightPositions.size(); i++)
 		{
-			std::stringstream num;
-			num << i;
-			shader.setUniformVec3(("pointLights[" + num.str() + "].position"), pointLightPositions[i]);
-			shader.setUniform1f("pointLights[" + num.str() + "].constant", 1.0f);
-			shader.setUniform1f("pointLights[" + num.str() + "].linear", 0.09f);
-			shader.setUniform1f("pointLights[" + num.str() + "].quadratic", 0.032f);
-			shader.setUniformVec3("pointLights[" + num.str() + "].ambient", glm::vec3(0.1f) * lightColor);
-			shader.setUniformVec3("pointLights[" + num.str() + "].diffuse", glm::vec3(1.0f) * lightColor);
-			shader.setUniformVec3("pointLights[" + num.str() + "].specular", glm::vec3(1.0f) * lightColor);
+			std::string num = std::to_string(i);
+			shader.setUniformVec3(("pointLights[" + num + "].position"), pointLightPositions[i]);
+			shader.setUniform1f("pointLights[" + num + "].constant", 1.0f);
+			shader.setUniform1f("pointLights[" + num + "].linear", 0.09f);
+			shader.setUniform1f("pointLights[" + num + "].quadratic", 0.032f);
+			shader.setUniformVec3("pointLights[" + num + "].ambient", glm::vec3(0.1f) * lightColor);
+			shader.setUniformVec3("pointLights[" + num + "].diffuse", glm::vec3(1.0f) * lightColor);
+			shader.setUniformVec3("pointLights[" + num + "].specular", glm::vec3(1.0f) * lightColor);
 		}
 		// direction light
 		shader.setUniformVec3("dirLight.direction", glm::vec3(-0.2f, 1.0f, -0.3f));
