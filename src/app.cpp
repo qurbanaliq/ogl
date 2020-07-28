@@ -25,6 +25,7 @@
 #include "ogllib/shader.h"
 #include "ogllib/camera.h"
 #include "ogllib/mesh.h"
+#include "ogllib/model.h"
 
 const unsigned int SCR_WIDTH = 640;
 const unsigned int SCR_HEIGHT = 480;
@@ -123,137 +124,14 @@ int main(void)
 	glfwSetCursorPosCallback(window, mouseCallback);
 	glfwSetScrollCallback(window, scrollCallback);
 
-
-
-	float vertices[] = {
-	    // positions          // normals           // texture coords
-	    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-	     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-	     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-	     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-	    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-	    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-
-	    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-	     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-	     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-	     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-	    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-	    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-
-	    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-	    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-	    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-	    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-	    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-	    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-	     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-	     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-	     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-	     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-	     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-	     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-	    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-	     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-	     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-	     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-	    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-	    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-	    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-	     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-	     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-	     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-	    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-	    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-	};
-
-	// create and bind vertex array, it will contain all the subsequent
-	// vertex and index buffers
-	unsigned int vao, vbo;
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &vbo);
-
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// defines the layout of the data and assign index zero to this data
-	// divides data into vertices, each of 3 floats.
-	// total 4 vertices in this case indexed 0 to 4 to use in index buffer
-	glEnableVertexAttribArray(0);
-	// stride can also be zero since we have tightly packed data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (3 * sizeof(float)));
-
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)));
-
-	// unbind everything (don't unbind buffers before vertex array)
-	// we can now bind only vertex array when we need to draw this data
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glm::vec3 cubePositions[] = {
-	    glm::vec3( 0.0f,  0.0f,  0.0f),
-	    glm::vec3( 2.0f,  5.0f, -10.0f),
-	    glm::vec3(-1.5f, -2.2f, -2.5f),
-	    glm::vec3(-3.8f, -2.0f, -8.3f),
-	    glm::vec3( 2.4f, -0.4f, -3.5f),
-	    glm::vec3(-1.7f,  3.0f, -7.5f),
-	    glm::vec3( 1.3f, -2.0f, -2.5f),
-	    glm::vec3( 1.5f,  2.0f, -2.5f),
-	    glm::vec3( 1.5f,  0.2f, -1.5f),
-	    glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-
-	std::array<glm::vec3, 4> pointLightPositions = {
-		glm::vec3( 0.7f,  1.0f,  0.5f),
-		glm::vec3( 3.3f, -2.3f, -1.0f),
-		glm::vec3(1.0f,  2.0f, -8.0f),
-		glm::vec3( -2.0f,  0.0f, -3.0f)
-	};
-
-	// creating a texture
-	//load the texture
-	Texture texture1("D:\\workspacec\\ogl\\rc\\images\\container2.png", Texture::DIFFUSE),
-			texture2("D:\\workspacec\\ogl\\rc\\images\\container2_specular.png", Texture::SPECULAR),
-			texture3("D:\\workspacec\\ogl\\rc\\images\\matrix.jpg", Texture::DIFFUSE);
-	texture1.bind(0);
-	texture2.bind(1);
-	texture3.bind(2);
-	// create shaders
-	//Shader shader("rc/shaders/v.shader", "rc/shaders/f.shader");
-	Shader shader("D:\\workspacec\\ogl\\rc\\shaders\\v.shader", "D:\\workspacec\\ogl\\rc\\shaders\\f2.shader");
-	Shader lightShader("D:\\workspacec\\ogl\\rc\\shaders\\v.shader", "D:\\workspacec\\ogl\\rc\\shaders\\f.shader");
-
 	glm::mat4 transform(1.0f);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glm::vec3 lightPos(0.2f, 0.0f, 2.0f);
-	glm::vec3 lightColor(0.3f, 1.0f, 0.3f);
 
-	// object shader
-	shader.use();
-	shader.setUniform1i("material.diffuse1", 0);
-	shader.setUniform1i("material.specular1", 1);
-	shader.setUniform1i("material.emission", 2);
-	shader.setUniform1f("material.shininess", 64.0f);
-	shader.setUniformVec3("lightColor", lightColor);
-
-	// light shader
-	lightShader.use();
-	lightShader.setUniformVec3("lightColor", lightColor);
+	Shader ourShader("D:/workspacec/ogl/rc/shaders/backpack.vs", "D:/workspacec/ogl/rc/shaders/backpack.fs");
+	Model backpack("D:/workspacec/ogl/rc/models/backpack/backpack.obj");
 
 	float currentTime;
-
-	glBindVertexArray(vao);
-
-	float j = 1;
 
 	while(!glfwWindowShouldClose(window))
 	{
@@ -268,72 +146,21 @@ int main(void)
 
 		glEnable(GL_DEPTH_TEST);
 		// set the color in the buffer
-		glClearColor(200/255.0f, 200/255.0f, 200/255.0f, 1.0f); // state setting function
+		glClearColor(0.3f, 0.5f, 0.1f, 1.0f); // state setting function
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
-		float radius = 5.0f;
-		shader.use();
-		//transform the object cube
-		shader.setUniformMat4("view", view);
-		shader.setUniformMat4("projection", projection);
-		shader.setUniformVec3("viewPos", camera.getPosition());
-		// point lights
-		for (int i = 0; i< pointLightPositions.size(); i++)
-		{
-			std::string num = std::to_string(i);
-			shader.setUniformVec3(("pointLights[" + num + "].position"), pointLightPositions[i]);
-			shader.setUniform1f("pointLights[" + num + "].constant", 1.0f);
-			shader.setUniform1f("pointLights[" + num + "].linear", 0.09f);
-			shader.setUniform1f("pointLights[" + num + "].quadratic", 0.032f);
-			shader.setUniformVec3("pointLights[" + num + "].ambient", glm::vec3(0.1f) * lightColor);
-			shader.setUniformVec3("pointLights[" + num + "].diffuse", glm::vec3(1.0f) * lightColor);
-			shader.setUniformVec3("pointLights[" + num + "].specular", glm::vec3(1.0f) * lightColor);
-		}
-		// direction light
-		shader.setUniformVec3("dirLight.direction", glm::vec3(-0.2f, 1.0f, -0.3f));
-		shader.setUniformVec3("dirLight.ambient", glm::vec3(0.1f));
-		shader.setUniformVec3("dirLight.diffuse", glm::vec3(1.0f));
-		shader.setUniformVec3("dirLight.specular", glm::vec3(1.0f));
-		// spot light
-		shader.setUniformVec3("spotLight.position", camera.getPosition());
-		shader.setUniformVec3("spotLight.direction", camera.getFront());
-		shader.setUniform1f("spotLight.cutoff", glm::cos(glm::radians(12.5f)));
-		shader.setUniform1f("spotLight.outerCutoff", glm::cos(glm::radians(15.0f)));
-		shader.setUniform1f("spotLight.constant", 1.0f);
-		shader.setUniform1f("spotLight.linear", 0.09f);
-		shader.setUniform1f("spotLight.quadratic", 0.032f);
-		shader.setUniformVec3("spotLight.ambient", glm::vec3(0.1f));
-		shader.setUniformVec3("spotLight.diffuse", glm::vec3(1.0f));
-		shader.setUniformVec3("spotLight.specular", glm::vec3(1.0f));
-//		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		for (int i=1; i<=10; i++)
-		{
-			glm::mat4 model = glm::translate(transform, cubePositions[i-1]);
-			model = glm::rotate(model, glm::radians(i * j), glm::vec3(1.0f, 0.3f, 0.5f));
-			shader.setUniformMat4("model", model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+	
+		ourShader.use();
+		glm::mat4 model = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		ourShader.setUniformMat4("projection", projection);
+		ourShader.setUniformMat4("view", view);
+		ourShader.setUniformMat4("model", model);
+		ourShader.setUniformVec3("viewDir", camera.getFront());
+		backpack.draw(ourShader);
 
-		j += 0.2;
-
-		lightShader.use();
-		//transform the light cube
-		for (int i = 0; i< pointLightPositions.size(); i++)
-		{
-			glm::mat4 lightModel = glm::translate(transform, pointLightPositions[i]);
-			lightModel = glm::scale(lightModel, glm::vec3(0.1f));
-			shader.setUniformMat4("model", lightModel);
-			shader.setUniformMat4("view", view);
-			shader.setUniformMat4("projection", projection);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-	glBindVertexArray(0);
-//	glDeleteProgram(shaderProgram);
-//	glDeleteProgram(shaderProgramYellow);
-	glDeleteVertexArrays(1, &vao);
-	glDeleteBuffers(1, &vbo);
 	glfwTerminate();
 	return 0;
 }
