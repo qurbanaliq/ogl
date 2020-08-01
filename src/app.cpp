@@ -115,8 +115,10 @@ int main(void)
 	}
 
 	glEnable(GL_DEPTH_TEST);
-
+	glFrontFace(GL_CW);
 	glEnable(GL_BLEND);
+
+
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
@@ -127,49 +129,49 @@ int main(void)
 	glfwSetScrollCallback(window, scrollCallback);
 
 	float cubeVertices[] = {
-        // positions          // texture Coords
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
+    // back face
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right    
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right              
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left                
+    // front face
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-right        
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, // top-left        
+    // left face
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-left       
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
+    // right face
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right      
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right          
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
+    // bottom face          
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f, // top-left        
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
+    // top face
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right                 
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, // bottom-left  
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f  // top-left              
+};
 
 	unsigned int cubeVao, cubeVbo;
 	glGenVertexArrays(1, &cubeVao);
@@ -190,11 +192,12 @@ int main(void)
 
 	float vertices[] = {
 		-0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
+		0.5f, 0.5f, 0.5f,    1.0f, 1.0f,
 		0.5f, -0.5f, 0.5f,   1.0f, 0.0f,
 		0.5f, 0.5f, 0.5f,    1.0f, 1.0f,
-		0.5f, 0.5f, 0.5f,    1.0f, 1.0f,
-		-0.5f, 0.5f, 0.5f,   0.0f, 1.0f,
-		-0.5f, -0.5f, 0.5f,  0.0f, 0.0f
+		-0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f,   0.0f, 1.0f
+		
 	};
 
 	unsigned int vao, vbo;
@@ -244,14 +247,12 @@ int main(void)
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // state setting function
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
 
-		ourShader.use();
-		//glm::mat4 model = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		ourShader.setUniformMat4("projection", projection);
-		ourShader.setUniformMat4("view", view);
-		ourShader.setUniformMat4("model", model);
-		ourShader.setUniformVec3("viewDir", camera.getFront());
-		backpack.draw(ourShader);
+		// ourShader.use();
+		// ourShader.setUniformMat4("projection", projection);
+		// ourShader.setUniformMat4("view", view);
+		// ourShader.setUniformMat4("model", model);
+		// ourShader.setUniformVec3("viewDir", camera.getFront());
+		// backpack.draw(ourShader);
 
 		shader1.use();
 		shader1.setUniform1i("texture1", 0);
@@ -259,13 +260,15 @@ int main(void)
 		shader1.setUniformMat4("view", view);
 		shader1.setUniformMat4("projection", projection);
 
-		// glBindVertexArray(cubeVao);
-		// texture2.bind(0);
-		// model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.5f));
-		// shader1.setUniformMat4("model", model);
-		// glDrawArrays(GL_TRIANGLES, 0, 36);
-		//glBindVertexArray(0);
-		//texture2.unbind();
+		glEnable(GL_CULL_FACE);
+
+		glBindVertexArray(cubeVao);
+		texture2.bind(0);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.5f));
+		shader1.setUniformMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		glDisable(GL_CULL_FACE);
 
 		glBindVertexArray(vao);
 		texture.bind(0);
@@ -277,8 +280,6 @@ int main(void)
 		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 1.0f));
 		shader1.setUniformMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		//glBindVertexArray(0);
-		//texture.unbind();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
