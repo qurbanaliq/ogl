@@ -3,9 +3,11 @@
 
 out vec4 color;
 
-uniform vec3 lightColor;
+in vec2 TexCoords;
+
+uniform sampler2D texture1;
 
 void main()
 {
-	color = vec4(lightColor, 1.0);
+	color = texture(texture1, TexCoords);
 }

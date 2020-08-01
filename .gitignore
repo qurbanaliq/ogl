@@ -40,6 +40,7 @@ dependencies/*
 .settings/*
 ven/*
 rc/images/*
+rc/models/*
 
 *.i
 *.ini
