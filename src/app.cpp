@@ -97,14 +97,14 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
-	GLFWwindow* window = glfwCreateWindow(640, 480, "OpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGL", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
 		return -1;
 	}
 
-	glViewport(0, 0, 640, 480);
+	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
 	glfwMakeContextCurrent(window);
 
@@ -191,12 +191,13 @@ int main(void)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	float vertices[] = {
-		-0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
-		0.5f, 0.5f, 0.5f,    1.0f, 1.0f,
-		0.5f, -0.5f, 0.5f,   1.0f, 0.0f,
-		0.5f, 0.5f, 0.5f,    1.0f, 1.0f,
-		-0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
-		-0.5f, 0.5f, 0.5f,   0.0f, 1.0f
+		-0.8f, -0.8f,  0.0f, 0.0f,
+		0.8f, 0.8f,    1.0f, 1.0f,
+		0.8f, -0.8f,   1.0f, 0.0f,
+	
+		0.8f, 0.8f,    1.0f, 1.0f,
+		-0.8f, -0.8f,  0.0f, 0.0f,
+		-0.8f, 0.8f,   0.0f, 1.0f
 		
 	};
 
@@ -209,13 +210,49 @@ int main(void)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, 0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
 
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*) (sizeof(float) * 3));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) (sizeof(float) * 2));
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// framebuffer
+	unsigned int fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	// generate a texture for framebuffer
+	unsigned int texColorBuffer;
+	glGenTextures(1, &texColorBuffer);
+	glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// attach the texture to framebuffer as a color attachment
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
+
+	// generate render buffer objects for depth and stencil testing
+	unsigned int rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	// attach the render buffer to the frame buffer as a depth and stencil attachment
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	// check the framebuffer status
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	Shader fb_shader("D:/workspacec/ogl/rc/shaders/fb_v.shader", "D:/workspacec/ogl/rc/shaders/fb_f.shader");
+
+
 
 	glm::mat4 transform(1.0f);
 
@@ -225,8 +262,7 @@ int main(void)
 	Model backpack("D:/workspacec/ogl/rc/models/backpack/backpack.obj");
 
 	Shader shader1("D:/workspacec/ogl/rc/shaders/v.shader", "D:/workspacec/ogl/rc/shaders/f.shader");
-	Texture texture("D:/workspacec/ogl/rc/images/transparent_window.png", Texture::DIFFUSE),
-			texture2("D:/workspacec/ogl/rc/images/container2.png", Texture::DIFFUSE);
+	Texture texture2("D:/workspacec/ogl/rc/images/container2.png", Texture::DIFFUSE);
 
 	float currentTime;
 
@@ -243,9 +279,14 @@ int main(void)
 		glm::mat4 model = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 
+		// use the framebuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		// set the color in the buffer
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // state setting function
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
+		glEnable(GL_DEPTH_TEST);
+
+
 
 		// ourShader.use();
 		// ourShader.setUniformMat4("projection", projection);
@@ -260,26 +301,39 @@ int main(void)
 		shader1.setUniformMat4("view", view);
 		shader1.setUniformMat4("projection", projection);
 
-		glEnable(GL_CULL_FACE);
+		//glEnable(GL_CULL_FACE);
 
 		glBindVertexArray(cubeVao);
 		texture2.bind(0);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.5f));
+		model = glm::translate(model, glm::vec3(0.6f, 0.0f, 0.0f));
 		shader1.setUniformMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		glDisable(GL_CULL_FACE);
+		model = glm::translate(model, glm::vec3(-1.1f, 0.0f, 0.0f));
+		shader1.setUniformMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		//glDisable(GL_CULL_FACE);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		glClearColor(0.0f, 0.4f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// draw scree quad for framebuffer
+		fb_shader.use();
 		glBindVertexArray(vao);
-		texture.bind(0);
+		glDisable(GL_DEPTH_TEST);
+		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+		// //texture.bind(0);
 		
-		model = glm::translate(model, glm::vec3(0.0f, 0.5f, 0.5f));
-		shader1.setUniformMat4("model", model);
+		// model = glm::translate(model, glm::vec3(0.0f, 0.5f, 1.0f));
+		// shader1.setUniformMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 1.0f));
-		shader1.setUniformMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		// model = glm::translate(model, glm::vec3(0.0f, -0.5f, 1.0f));
+		// shader1.setUniformMat4("model", model);
+		// glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
