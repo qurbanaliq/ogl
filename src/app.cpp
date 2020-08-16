@@ -26,6 +26,7 @@
 #include "ogllib/camera.h"
 #include "ogllib/mesh.h"
 #include "ogllib/model.h"
+#include "ogllib/vertexbuffer.h"
 
 const unsigned int SCR_WIDTH = 640;
 const unsigned int SCR_HEIGHT = 480;
@@ -173,13 +174,13 @@ int main(void)
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f  // top-left              
 };
 
-	unsigned int cubeVao, cubeVbo;
+	unsigned int cubeVao;
 	glGenVertexArrays(1, &cubeVao);
-	glGenBuffers(1, &cubeVbo);
-
 	glBindVertexArray(cubeVao);
-	glBindBuffer(GL_ARRAY_BUFFER, cubeVbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+
+	Vertexbuffer cubeVbo(cubeVertices, sizeof(cubeVertices));
+	cubeVbo.bind();
+	
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
@@ -188,26 +189,25 @@ int main(void)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(sizeof(float) * 3));
 
 	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	cubeVbo.unbind();
 
 	float vertices[] = {
-		-0.8f, -0.8f,  0.0f, 0.0f,
-		0.8f, 0.8f,    1.0f, 1.0f,
-		0.8f, -0.8f,   1.0f, 0.0f,
-	
-		0.8f, 0.8f,    1.0f, 1.0f,
-		-0.8f, -0.8f,  0.0f, 0.0f,
-		-0.8f, 0.8f,   0.0f, 1.0f
+		-1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
 		
 	};
 
-	unsigned int vao, vbo;
+	unsigned int vao;
 	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &vbo);
-
 	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	
+	Vertexbuffer scrVbo(vertices, sizeof(vertices));
+	scrVbo.bind();
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
@@ -216,7 +216,7 @@ int main(void)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) (sizeof(float) * 2));
 
 	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	scrVbo.unbind();
 
 	// framebuffer
 	unsigned int fbo;
@@ -230,7 +230,6 @@ int main(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// attach the texture to framebuffer as a color attachment
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
@@ -258,11 +257,11 @@ int main(void)
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	Shader ourShader("D:/workspacec/ogl/rc/shaders/backpack.vs", "D:/workspacec/ogl/rc/shaders/backpack.fs");
-	Model backpack("D:/workspacec/ogl/rc/models/backpack/backpack.obj");
+	//Shader ourShader("D:/workspacec/ogl/rc/shaders/backpack.vs", "D:/workspacec/ogl/rc/shaders/backpack.fs");
+	//Model backpack("D:/workspacec/ogl/rc/models/backpack/backpack.obj");
 
 	Shader shader1("D:/workspacec/ogl/rc/shaders/v.shader", "D:/workspacec/ogl/rc/shaders/f.shader");
-	Texture texture2("D:/workspacec/ogl/rc/images/container2.png", Texture::DIFFUSE);
+	Texture texture2("D:/workspacec/ogl/rc/images/container.jpg", Texture::DIFFUSE);
 
 	float currentTime;
 
@@ -286,15 +285,6 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
 		glEnable(GL_DEPTH_TEST);
 
-
-
-		// ourShader.use();
-		// ourShader.setUniformMat4("projection", projection);
-		// ourShader.setUniformMat4("view", view);
-		// ourShader.setUniformMat4("model", model);
-		// ourShader.setUniformVec3("viewDir", camera.getFront());
-		// backpack.draw(ourShader);
-
 		shader1.use();
 		shader1.setUniform1i("texture1", 0);
 		shader1.setUniformMat4("model", model);
@@ -314,30 +304,29 @@ int main(void)
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		//glDisable(GL_CULL_FACE);
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDisable(GL_DEPTH_TEST);
 
 		glClearColor(0.0f, 0.4f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// draw scree quad for framebuffer
 		fb_shader.use();
+		fb_shader.setUniform1i("texture1", 0);
 		glBindVertexArray(vao);
-		glDisable(GL_DEPTH_TEST);
 		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-		// //texture.bind(0);
-		
-		// model = glm::translate(model, glm::vec3(0.0f, 0.5f, 1.0f));
-		// shader1.setUniformMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		// model = glm::translate(model, glm::vec3(0.0f, -0.5f, 1.0f));
-		// shader1.setUniformMat4("model", model);
-		// glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+	glDeleteVertexArrays(1, &cubeVao);
+	glDeleteVertexArrays(1, &vao);
+	glDeleteTextures(1, &texColorBuffer);
+	glDeleteFramebuffers(1, &fbo);
+	glDeleteRenderbuffers(1, &rbo);
+
 	glfwTerminate();
 	return 0;
 }
