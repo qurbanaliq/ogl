@@ -27,6 +27,8 @@
 #include "ogllib/mesh.h"
 #include "ogllib/model.h"
 #include "ogllib/vertexbuffer.h"
+#include "ogllib/vertexarray.h"
+#include "ogllib/vertexbufferLayout.h"
 
 const unsigned int SCR_WIDTH = 640;
 const unsigned int SCR_HEIGHT = 480;
@@ -174,21 +176,14 @@ int main(void)
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f  // top-left              
 };
 
-	unsigned int cubeVao;
-	glGenVertexArrays(1, &cubeVao);
-	glBindVertexArray(cubeVao);
-
+	Vertexarray cubeVao;
 	Vertexbuffer cubeVbo(cubeVertices, sizeof(cubeVertices));
-	cubeVbo.bind();
-	
+	VertexbufferLayout layout;
+	layout.push(3); // vertex position
+	layout.push(2); // texture coordinates
+	cubeVao.addVertexbuffer(cubeVbo, layout);
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(sizeof(float) * 3));
-
-	glBindVertexArray(0);
+	cubeVao.unbind();
 	cubeVbo.unbind();
 
 	float vertices[] = {
@@ -202,20 +197,14 @@ int main(void)
 		
 	};
 
-	unsigned int vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	
+	Vertexarray scrVao;
 	Vertexbuffer scrVbo(vertices, sizeof(vertices));
-	scrVbo.bind();
+	VertexbufferLayout scrLayout;
+	scrLayout.push(2);
+	scrLayout.push(2);
+	scrVao.addVertexbuffer(scrVbo, scrLayout);
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) (sizeof(float) * 2));
-
-	glBindVertexArray(0);
+	scrVao.unbind();
 	scrVbo.unbind();
 
 	// framebuffer
@@ -293,7 +282,7 @@ int main(void)
 
 		//glEnable(GL_CULL_FACE);
 
-		glBindVertexArray(cubeVao);
+		cubeVao.bind();
 		texture2.bind(0);
 		model = glm::translate(model, glm::vec3(0.6f, 0.0f, 0.0f));
 		shader1.setUniformMat4("model", model);
@@ -313,16 +302,13 @@ int main(void)
 		// draw scree quad for framebuffer
 		fb_shader.use();
 		fb_shader.setUniform1i("texture1", 0);
-		glBindVertexArray(vao);
+		scrVao.bind();
 		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-
-	glDeleteVertexArrays(1, &cubeVao);
-	glDeleteVertexArrays(1, &vao);
 	glDeleteTextures(1, &texColorBuffer);
 	glDeleteFramebuffers(1, &fbo);
 	glDeleteRenderbuffers(1, &rbo);
