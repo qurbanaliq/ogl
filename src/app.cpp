@@ -2,9 +2,9 @@
  * app.cpp
  *
  *  Created on: Jun 24, 2020
- *  Author: 123
+ *  Author: Qurban Ali (qurbanaliqureshi@gmail.com)
  *
- *	This if OpenGL exercise
+ *	This is OpenGL practice for learning
  *  OpenGL is a state machine
  *  some functions set the state and others use that state
  */
